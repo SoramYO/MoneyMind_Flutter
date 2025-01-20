@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_project/presentation/blocs/auth/auth_bloc.dart';
-import 'package:my_project/presentation/pages/auth/login_page.dart';
-import 'package:my_project/core/constants/app_colors.dart';
+import 'common/bloc/auth/auth_state.dart';
+import 'common/bloc/auth/auth_state_cubit.dart';
+import 'core/configs/theme/app_theme.dart';
+import 'presentation/auth/pages/signup.dart';
+import 'presentation/home/pages/home.dart';
+import 'service_locator.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.black));
+  setupServiceLocator();
   runApp(const MyApp());
 }
 
@@ -13,29 +22,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom]);
     return BlocProvider(
-      create: (context) => AuthBloc(),
+      create: (context) => AuthStateCubit()..appStarted(),
       child: MaterialApp(
-        title: 'MoneyMind',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.primary,
-          ),
-          useMaterial3: true,
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-            ),
-          ),
-          textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF16AB65),
-            ),
-          ),
-        ),
-        home: const LoginPage(),
-      ),
+          theme: AppTheme.appTheme,
+          debugShowCheckedModeBanner: false,
+          home: BlocBuilder<AuthStateCubit, AuthState>(
+            builder: (context, state) {
+              if (state is Authenticated) {
+                return const HomePage();
+              }
+              if (state is UnAuthenticated) {
+                return SignupPage();
+              }
+              return Container();
+            },
+          )),
     );
   }
 }
