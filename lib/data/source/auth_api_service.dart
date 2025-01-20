@@ -46,7 +46,7 @@ class AuthApiServiceImpl extends AuthApiService {
     try {
       var response =
           await sl<DioClient>().post(ApiUrls.login, data: signinReq.toMap());
-
+      print("auth_api_service:\n" + response.toString());
       return Right(response);
     } on DioException catch (e) {
       return Left(e.response!.data['message']);

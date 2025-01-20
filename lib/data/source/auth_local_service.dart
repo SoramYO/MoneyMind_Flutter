@@ -10,11 +10,14 @@ class AuthLocalServiceImpl extends AuthLocalService {
   @override
   Future<bool> isLoggedIn() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var token = sharedPreferences.getString('token');
-    if (token == null) {
-      return false;
+    // Kiểm tra sự tồn tại của accessToken và refreshToken
+    var accessToken = sharedPreferences.getString('accessToken');
+    print(accessToken);
+    print("HEloooooooooooooooooooooo");
+    if (accessToken == null) {
+      return false; // Người dùng chưa đăng nhập
     } else {
-      return true;
+      return true; // Người dùng đã đăng nhập
     }
   }
 
