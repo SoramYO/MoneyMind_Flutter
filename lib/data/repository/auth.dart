@@ -19,7 +19,11 @@ class AuthRepositoryImpl extends AuthRepository {
       Response response = data;
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      sharedPreferences.setString('token', response.data['token']);
+      // Lưu tokens vào SharedPreferences
+      sharedPreferences.setString(
+          'accessToken', response.data['data']['tokens']['accessToken']);
+      sharedPreferences.setString(
+          'refreshToken', response.data['data']['tokens']['refreshToken']);
       return Right(response);
     });
   }
@@ -50,21 +54,17 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<Either> signin(SigninReqParams signinReq) async {
     Either result = await sl<AuthApiService>().signin(signinReq);
-    print("repository/auth:\n" + result.toString());
     return result.fold((error) {
-      print("repository/auth:\n" + error);
       return Left(error);
     }, (data) async {
       Response response = data;
-      print("repository/auth:\n" + response.['tokens']['accessToken'].toString());
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      // Lưu token
+      // Lưu tokens vào SharedPreferences
       sharedPreferences.setString(
-          'accessToken', response.data['tokens']['accessToken']);
+          'accessToken', response.data['data']['tokens']['accessToken']);
       sharedPreferences.setString(
-          'refreshToken', response.data['tokens']['refreshToken']);
-      print("repository/auth:\n" + response.data.toString());
+          'refreshToken', response.data['data']['tokens']['refreshToken']);
       return Right(response);
     });
   }
