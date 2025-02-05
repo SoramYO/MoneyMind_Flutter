@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_project/presentation/auth/pages/signin.dart';
 import '../../../common/bloc/button/button_state.dart';
 import '../../../common/bloc/button/button_state_cubit.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/usecases/logout.dart';
 import '../../../service_locator.dart';
-import '../../auth/pages/signup.dart';
 import '../bloc/user_display_cubit.dart';
 import '../bloc/user_display_state.dart';
 
@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SignupPage(),
+                    builder: (context) => SigninPage(),
                   ));
             }
           },
@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(32),
       child: BasicAppButton(
-          title: 'Logout',
+          title: 'Đăng xuất',
           onPressed: () {
             context
                 .read<ButtonStateCubit>()

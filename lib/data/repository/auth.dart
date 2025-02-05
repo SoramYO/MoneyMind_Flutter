@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:my_project/domain/entities/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repository/auth.dart';
 import '../../service_locator.dart';
@@ -33,15 +34,30 @@ class AuthRepositoryImpl extends AuthRepository {
     return await sl<AuthLocalService>().isLoggedIn();
   }
 
+  // @override
+  // Future<Either> getUser() async {
+  //   Either result = await sl<AuthApiService>().getUser();
+  //   return result.fold((error) {
+  //     return Left(error);
+  //   }, (data) {
+  //     Response response = data;
+  //     var userModel = UserModel.fromMap(response.data);
+  //     var userEntity = userModel.toEntity();
+  //     return Right(userEntity);
+  //   });
+  // }
+
   @override
   Future<Either> getUser() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String userName = sharedPreferences.getString('userName').toString();
+    String email = sharedPreferences.getString('email').toString();
     Either result = await sl<AuthApiService>().getUser();
     return result.fold((error) {
-      return Left(error);
+      UserEntity userEntity = new UserEntity(email: email, username: userName);
+      return Right(userEntity);
     }, (data) {
-      Response response = data;
-      var userModel = UserModel.fromMap(response.data);
-      var userEntity = userModel.toEntity();
+      UserEntity userEntity = new UserEntity(email: email, username: userName);
       return Right(userEntity);
     });
   }
@@ -65,6 +81,10 @@ class AuthRepositoryImpl extends AuthRepository {
           'accessToken', response.data['data']['tokens']['accessToken']);
       sharedPreferences.setString(
           'refreshToken', response.data['data']['tokens']['refreshToken']);
+      // Lưu user tạm vào SharedPreferences
+      sharedPreferences.setString(
+          'userName', response.data['data']['username']);
+      sharedPreferences.setString('email', response.data['data']['email']);
       return Right(response);
     });
   }

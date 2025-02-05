@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_project/core/constants/app_colors.dart';
 import '../../../common/bloc/button/button_state.dart';
 import '../../../common/bloc/button/button_state_cubit.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
@@ -10,12 +11,20 @@ import '../../../service_locator.dart';
 import '../../home/pages/home.dart';
 import 'signin.dart';
 
-class SignupPage extends StatelessWidget {
-  SignupPage({super.key});
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
 
-  final TextEditingController _usernameCon = TextEditingController();
-  final TextEditingController _emailCon = TextEditingController();
-  final TextEditingController _passwordCon = TextEditingController();
+class _SignupPageState extends State<SignupPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameCon = TextEditingController();
+  final _emailCon = TextEditingController();
+  final _passwordCon = TextEditingController();
+  final _confirmPasswordCon = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -39,32 +48,168 @@ class SignupPage extends StatelessWidget {
           child: SafeArea(
             minimum: const EdgeInsets.only(top: 100, right: 16, left: 16),
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _signup(),
-                  const SizedBox(
-                    height: 50,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Header với nút back
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.pop(context),
+                            color: AppColors.primary,
+                          ),
+                          const Text(
+                            'Đăng ký tài khoản',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      // Form fields
+                      _textField(
+                        controller: _usernameCon,
+                        label: 'Họ và tên',
+                        prefixIcon: Icons.person_outline,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng nhập họ tên';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _textField(
+                        controller: _emailCon,
+                        label: 'Email',
+                        prefixIcon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng nhập email';
+                          }
+                          if (!value.contains('@')) {
+                            return 'Email không hợp lệ';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _textField(
+                        controller: _passwordCon,
+                        label: 'Mật khẩu',
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.primary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng nhập mật khẩu';
+                          }
+                          if (value.length < 8) {
+                            return 'Mật khẩu phải có ít nhất 8 ký tự';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _textField(
+                        controller: _confirmPasswordCon,
+                        label: 'Xác nhận mật khẩu',
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: _obscureConfirmPassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.primary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng xác nhận mật khẩu';
+                          }
+                          if (value != _passwordCon.text) {
+                            return 'Mật khẩu không khớp';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                      ),
+                      _createAccountButton(context),
+                      // Đường kẻ với text ở giữa
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'Hoặc đăng ký với',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+
+                      // Social login buttons
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _socialButton(
+                            'assets/images/google.png',
+                            onPressed: () {
+                              // TODO: Implement Google sign in
+                            },
+                            iconSize: 24,
+                          ),
+                          const SizedBox(width: 24),
+                          _socialButton(
+                            'assets/images/facebook.png',
+                            onPressed: () {
+                              // TODO: Implement Facebook sign in
+                            },
+                            iconSize: 32,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  _userNameField(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _emailField(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _password(),
-                  const SizedBox(
-                    height: 60,
-                  ),
-                  _createAccountButton(context),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _signinText(context)
-                ],
+                ),
               ),
             ),
           ),
@@ -73,32 +218,38 @@ class SignupPage extends StatelessWidget {
     );
   }
 
-  Widget _signup() {
-    return const Text(
-      'Sign Up',
-      style: TextStyle(
-          color: Color(0xff2A4ECA), fontWeight: FontWeight.bold, fontSize: 32),
-    );
-  }
-
-  Widget _userNameField() {
-    return TextField(
-      controller: _usernameCon,
-      decoration: const InputDecoration(hintText: 'Username'),
-    );
-  }
-
-  Widget _emailField() {
-    return TextField(
-      controller: _emailCon,
-      decoration: const InputDecoration(hintText: 'Email'),
-    );
-  }
-
-  Widget _password() {
-    return TextField(
-      controller: _passwordCon,
-      decoration: const InputDecoration(hintText: 'Password'),
+  Widget _textField({
+    required TextEditingController controller,
+    required String label,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(prefixIcon, color: AppColors.primary),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.primary),
+        ),
+        filled: true,
+        fillColor: Colors.grey[50],
+      ),
+      validator: validator,
     );
   }
 
@@ -107,37 +258,39 @@ class SignupPage extends StatelessWidget {
       return BasicAppButton(
           title: 'Create Account',
           onPressed: () {
-            context.read<ButtonStateCubit>().excute(
-                usecase: sl<SignupUseCase>(),
-                params: SignupReqParams(
-                    email: _emailCon.text,
-                    password: _passwordCon.text,
-                    username: _usernameCon.text,
-                    roles: ['User']));
+            if (_formKey.currentState!.validate()) {
+              // TODO: Xử lý đăng ký
+              context.read<ButtonStateCubit>().excute(
+                  usecase: sl<SignupUseCase>(),
+                  params: SignupReqParams(
+                      email: _emailCon.text,
+                      password: _passwordCon.text,
+                      username: _usernameCon.text,
+                      roles: ['User']));
+            }
           });
     });
   }
 
-  Widget _signinText(BuildContext context) {
-    return Text.rich(
-      TextSpan(children: [
-        const TextSpan(
-            text: 'Do you have account?',
-            style: TextStyle(
-                color: Color(0xff3B4054), fontWeight: FontWeight.w500)),
-        TextSpan(
-            text: ' Sign In',
-            style: const TextStyle(
-                color: Color(0xff3461FD), fontWeight: FontWeight.w500),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SigninPage(),
-                    ));
-              })
-      ]),
+  Widget _socialButton(
+    String iconPath, {
+    required VoidCallback onPressed,
+    double iconSize = 24,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Image.asset(
+          iconPath,
+          height: iconSize,
+          width: iconSize,
+        ),
+      ),
     );
   }
 }

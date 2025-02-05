@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_project/core/constants/app_colors.dart';
 
 import '../../bloc/button/button_state.dart';
 import '../../bloc/button/button_state_cubit.dart';
@@ -46,7 +47,7 @@ class BasicAppButton extends StatelessWidget {
       decoration:
           BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [
         BoxShadow(
-          color: const Color(0xff3461FD).withOpacity(0.8),
+          color: AppColors.primary,
           offset: const Offset(0, 5),
           blurRadius: 17,
         )
@@ -60,7 +61,7 @@ class BasicAppButton extends StatelessWidget {
           child: Text(
             title,
             style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w400),
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
           )),
     );
   }
