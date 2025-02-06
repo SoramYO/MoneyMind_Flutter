@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_project/core/constants/app_colors.dart';
@@ -9,7 +8,6 @@ import '../../../data/models/signup_req_params.dart';
 import '../../../domain/usecases/signup.dart';
 import '../../../service_locator.dart';
 import '../../home/pages/home.dart';
-import 'signin.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
