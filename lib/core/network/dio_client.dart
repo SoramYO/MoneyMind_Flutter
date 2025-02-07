@@ -13,6 +13,9 @@ class DioClient {
               receiveTimeout: const Duration(seconds: 10)),
         )..interceptors.addAll([LoggerInterceptor()]);
 
+  // Getter public để truy cập đối tượng Dio bên trong
+  Dio get dio => _dio;
+
   // GET METHOD
   Future<Response> get(
     String url, {

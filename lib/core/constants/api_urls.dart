@@ -3,4 +3,5 @@ class ApiUrls {
   static const register = '${baseURL}Authentications/Register';
   static const userProfile = '${baseURL}user/profile';
   static const login = '${baseURL}Authentications/Login';
+  static const refreshToken = '${baseURL}Authentications/RefreshToken';
 }

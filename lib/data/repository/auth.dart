@@ -78,18 +78,22 @@ class AuthRepositoryImpl extends AuthRepository {
       return Left(error);
     }, (data) async {
       Response response = data;
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      // Lưu tokens vào SharedPreferences
-      sharedPreferences.setString(
-          'accessToken', response.data['data']['tokens']['accessToken']);
-      sharedPreferences.setString(
-          'refreshToken', response.data['data']['tokens']['refreshToken']);
-      // Lưu user tạm vào SharedPreferences
-      sharedPreferences.setString(
-          'userName', response.data['data']['username']);
-      sharedPreferences.setString('email', response.data['data']['email']);
-      return Right(response);
+      var roles = response.data['data']['roles'];
+      if (roles.contains('User')) {
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        // Lưu tokens vào SharedPreferences
+        sharedPreferences.setString(
+            'accessToken', response.data['data']['tokens']['accessToken']);
+        sharedPreferences.setString(
+            'refreshToken', response.data['data']['tokens']['refreshToken']);
+        // Lưu user tạm vào SharedPreferences
+        sharedPreferences.setString(
+            'userName', response.data['data']['username']);
+        sharedPreferences.setString('email', response.data['data']['email']);
+        return Right(response);
+      }
+      return Left("Login failed: You don't have access with this role.");
     });
   }
 }
