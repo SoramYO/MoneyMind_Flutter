@@ -17,7 +17,7 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameCon = TextEditingController();
+  final _fullNameCon = TextEditingController();
   final _emailCon = TextEditingController();
   final _passwordCon = TextEditingController();
   final _confirmPasswordCon = TextEditingController();
@@ -74,7 +74,7 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 32),
                       // Form fields
                       _textField(
-                        controller: _usernameCon,
+                        controller: _fullNameCon,
                         label: 'Họ và tên',
                         prefixIcon: Icons.person_outline,
                         validator: (value) {
@@ -263,7 +263,7 @@ class _SignupPageState extends State<SignupPage> {
                   params: SignupReqParams(
                       email: _emailCon.text,
                       password: _passwordCon.text,
-                      username: _usernameCon.text,
+                      fullName: _fullNameCon.text,
                       roles: ['User']));
             }
           });

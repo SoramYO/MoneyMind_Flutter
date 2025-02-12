@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _username(state.userEntity),
+                      _fullName(state.userEntity),
                       const SizedBox(
                         height: 10,
                       ),
@@ -62,16 +62,16 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _username(UserEntity user) {
+  Widget _fullName(UserEntity user) {
     return Text(
-      user.username,
+      "Xin chào ${user.fullName}",
       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
     );
   }
 
   Widget _email(UserEntity user) {
     return Text(
-      user.email,
+      "Email: ${user.email}",
       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
     );
   }

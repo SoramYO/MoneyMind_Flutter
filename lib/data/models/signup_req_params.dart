@@ -3,20 +3,20 @@
 class SignupReqParams {
   final String email;
   final String password;
-  final String username;
+  final String fullName;
   final List<String> roles;
 
   SignupReqParams(
       {required this.email,
       required this.password,
-      required this.username,
+      required this.fullName,
       required this.roles});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'email': email,
       'password': password,
-      'username': username,
+      'fullName': fullName,
       'roles': roles
           .map((role) => role)
           .toList(), // Ensure roles is serialized properly

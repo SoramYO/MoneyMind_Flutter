@@ -27,7 +27,7 @@ class AuthRepositoryImpl extends AuthRepository {
           'refreshToken', response.data['data']['tokens']['refreshToken']);
       // Lưu user tạm vào SharedPreferences
       sharedPreferences.setString(
-          'userName', response.data['data']['username']);
+          'fullName', response.data['data']['fullName']);
       sharedPreferences.setString('email', response.data['data']['email']);
       return Right(response);
     });
@@ -42,10 +42,10 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<Either> getUser() async {
     Either result = await sl<AuthApiService>().getUser();
     return result.fold((error) {
-      return Left(error);
+      return Left(error.data['message']);
     }, (data) {
       Response response = data;
-      var userModel = UserModel.fromMap(response.data);
+      var userModel = UserModel.fromMap(response.data['data']);
       var userEntity = userModel.toEntity();
       return Right(userEntity);
     });
@@ -54,14 +54,14 @@ class AuthRepositoryImpl extends AuthRepository {
   // @override
   // Future<Either> getUser() async {
   //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   String userName = sharedPreferences.getString('userName').toString();
+  //   String fullName = sharedPreferences.getString('fullName').toString();
   //   String email = sharedPreferences.getString('email').toString();
   //   Either result = await sl<AuthApiService>().getUser();
   //   return result.fold((error) {
-  //     UserEntity userEntity = new UserEntity(email: email, username: userName);
+  //     UserEntity userEntity = new UserEntity(email: email, fullName: fullName);
   //     return Right(userEntity);
   //   }, (data) {
-  //     UserEntity userEntity = new UserEntity(email: email, username: userName);
+  //     UserEntity userEntity = new UserEntity(email: email, fullName: fullName);
   //     return Right(userEntity);
   //   });
   // }
@@ -89,7 +89,7 @@ class AuthRepositoryImpl extends AuthRepository {
             'refreshToken', response.data['data']['tokens']['refreshToken']);
         // Lưu user tạm vào SharedPreferences
         sharedPreferences.setString(
-            'userName', response.data['data']['username']);
+            'fullName', response.data['data']['fullName']);
         sharedPreferences.setString('email', response.data['data']['email']);
         return Right(response);
       }
