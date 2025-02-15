@@ -1,19 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'common/bloc/auth/auth_state.dart';
 import 'common/bloc/auth/auth_state_cubit.dart';
 import 'core/configs/theme/app_theme.dart';
 import 'presentation/auth/pages/signin.dart';
 import 'presentation/home/pages/home.dart';
 import 'service_locator.dart';
+import 'firebase_options.dart';
+import 'utils/firebase_utils.dart';
+import 'dart:io';
 
-void main() {
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await initFirebaseMessaging();
+  
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarBrightness: Brightness.light,
       systemNavigationBarColor: Colors.black));
   setupServiceLocator();
+
+  HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
 

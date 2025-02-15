@@ -96,4 +96,16 @@ class AuthRepositoryImpl extends AuthRepository {
       return Left("Login failed: You don't have access with this role.");
     });
   }
+  
+  @override
+  Future<Either> registerDeviceToken(String deviceToken) async {
+      Either result = await sl<AuthApiService>().registerDeviceToken(deviceToken);
+      return result.fold((error) {
+        return Left(error);
+      }, (data) {
+        Response response = data;
+        return Right(response);
+      });
+    
+  }
 }

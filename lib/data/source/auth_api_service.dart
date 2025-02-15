@@ -12,6 +12,7 @@ abstract class AuthApiService {
   Future<Either> getUser();
   Future<Either> signin(SigninReqParams signinReq);
   Future<Either> refreshToken();
+  Future<Either> registerDeviceToken(String deviceToken);
 }
 
 class AuthApiServiceImpl extends AuthApiService {
@@ -102,5 +103,15 @@ class AuthApiServiceImpl extends AuthApiService {
     } on DioException catch (e) {
       return Left(e.response?.toString() ?? 'Error refreshing token');
     }
+  }
+  
+  @override
+  Future<Either> registerDeviceToken(String deviceToken) async {
+    var response = await sl<DioClient>().post(ApiUrls.registerToken, data: {
+      'deviceToken': deviceToken,
+    });
+    return response.statusCode == 200
+        ? Right(response)
+        : Left(response.statusMessage);
   }
 }
