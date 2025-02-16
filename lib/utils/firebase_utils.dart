@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../firebase_options.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 Future<String> getDeviceToken() async {
   FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
@@ -34,32 +35,32 @@ Future<void> setupFlutterNotifications() async {
   if (isFlutterLocalNotificationsInitialized) {
     return;
   }
+  
+  const initializationSettingsAndroid = AndroidInitializationSettings('@drawable/notification_icon');
+  const initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    description:
-        'This channel is used for important notifications.', // description
+    'high_importance_channel',
+    'High Importance Notifications',
+    description: 'This channel is used for important notifications.',
     importance: Importance.max,
+    enableVibration: true,
+    showBadge: true,
   );
 
-  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  /// Create an Android Notification Channel.
-  ///
-  /// We use this channel in the `AndroidManifest.xml` file to override the
-  /// default FCM channel to enable heads up notifications.
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
-  /// Update the iOS foreground notification presentation options to allow
-  /// heads up notifications.
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
     sound: true,
   );
+  
   isFlutterLocalNotificationsInitialized = true;
 }
 
@@ -77,6 +78,9 @@ void showFlutterNotification(RemoteMessage message) {
           channel.name,
           channelDescription: channel.description,
           icon: 'logo',
+          importance: Importance.max,
+          priority: Priority.high,
+          enableVibration: true,
         ),
       ),
     );
@@ -85,6 +89,11 @@ void showFlutterNotification(RemoteMessage message) {
 
 // init func
 Future<void> initFirebaseMessaging() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Khởi tạo Firebase Analytics
+  await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+  
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen(showFlutterNotification);

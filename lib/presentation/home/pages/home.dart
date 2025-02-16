@@ -9,83 +9,81 @@ import '../../../domain/usecases/logout.dart';
 import '../../../service_locator.dart';
 import '../bloc/user_display_cubit.dart';
 import '../bloc/user_display_state.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../common/widgets/custom_arc_painter.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
   Widget build(BuildContext context) {
+    var media = MediaQuery.sizeOf(context);
+    
     return Scaffold(
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (context) => UserDisplayCubit()..displayUser()),
-          BlocProvider(create: (context) => ButtonStateCubit()),
-        ],
-        child: BlocListener<ButtonStateCubit, ButtonState>(
-          listener: (context, state) {
-            if (state is ButtonSuccessState) {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SigninPage(),
-                  ));
-            }
-          },
-          child: Center(
-            child: BlocBuilder<UserDisplayCubit, UserDisplayState>(
-              builder: (context, state) {
-                if (state is UserLoading) {
-                  return const CircularProgressIndicator();
-                }
-                if (state is UserLoaded) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _fullName(state.userEntity),
-                      const SizedBox(
-                        height: 10,
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: media.width * 1.1,
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25)
+                )
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    top: media.width * 0.15,
+                    child: Container(
+                      width: media.width * 0.8,
+                      height: media.width * 0.8,
+                      child: CustomPaint(
+                        painter: CustomArcPainter(
+                          end: 180,
+                          width: 12,
+                        ),
                       ),
-                      _email(state.userEntity),
-                      _logout(context)
-                    ],
-                  );
-                }
-                if (state is LoadUserFailure) {
-                  return Text(state.errorMessage);
-                }
-                return Container();
-              },
+                    ),
+                  ),
+                  Positioned(
+                    top: media.width * 0.4,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "2.500.000đ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 40,
+                            fontWeight: FontWeight.w700
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Chi tiêu tháng này",
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 16
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _fullName(UserEntity user) {
-    return Text(
-      "Xin chào ${user.fullName}",
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-    );
-  }
-
-  Widget _email(UserEntity user) {
-    return Text(
-      "Email: ${user.email}",
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-    );
-  }
-
-  Widget _logout(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: BasicAppButton(
-          title: 'Đăng xuất',
-          onPressed: () {
-            context
-                .read<ButtonStateCubit>()
-                .excute(usecase: sl<LogoutUseCase>());
-          }),
     );
   }
 }

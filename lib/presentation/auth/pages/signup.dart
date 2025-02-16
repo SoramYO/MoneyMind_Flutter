@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_project/core/constants/app_colors.dart';
+import 'package:my_project/presentation/auth/pages/signin.dart';
 import '../../../common/bloc/button/button_state.dart';
 import '../../../common/bloc/button/button_state_cubit.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
@@ -8,6 +9,7 @@ import '../../../data/models/signup_req_params.dart';
 import '../../../domain/usecases/signup.dart';
 import '../../../service_locator.dart';
 import '../../home/pages/home.dart';
+
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -32,11 +34,22 @@ class _SignupPageState extends State<SignupPage> {
         child: BlocListener<ButtonStateCubit, ButtonState>(
           listener: (context, state) {
             if (state is ButtonSuccessState) {
-              Navigator.pushReplacement(
+              // Hiển thị thông báo đăng ký thành công
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Đăng ký thành công! Vui lòng đăng nhập'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              // Chuyển về trang đăng nhập sau 2 giây
+              Future.delayed(const Duration(seconds: 2), () {
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const HomePage(),
-                  ));
+                    builder: (context) => const SigninPage(),
+                  ),
+                );
+              });
             }
             if (state is ButtonFailureState) {
               var snackBar = SnackBar(content: Text(state.errorMessage));

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:my_project/domain/entities/user.dart';
+import 'package:my_project/utils/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repository/auth.dart';
 import '../../service_locator.dart';
@@ -18,18 +18,10 @@ class AuthRepositoryImpl extends AuthRepository {
       return Left(error);
     }, (data) async {
       Response response = data;
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      // Lưu tokens vào SharedPreferences
-      sharedPreferences.setString(
-          'accessToken', response.data['data']['tokens']['accessToken']);
-      sharedPreferences.setString(
-          'refreshToken', response.data['data']['tokens']['refreshToken']);
-      // Lưu user tạm vào SharedPreferences
-      sharedPreferences.setString(
-          'fullName', response.data['data']['fullName']);
-      sharedPreferences.setString('email', response.data['data']['email']);
-      return Right(response);
+      if (response.statusCode == 200) {
+        return Right(response.data); // Trả về message thành công
+      }
+      return Left("Đăng ký thất bại"); 
     });
   }
 
@@ -68,7 +60,15 @@ class AuthRepositoryImpl extends AuthRepository {
 
   @override
   Future<Either> logout() async {
-    return await sl<AuthLocalService>().logout();
+    try {
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      // Xóa tất cả dữ liệu trong SharedPreferences
+      await sharedPreferences.clear();
+      
+      return const Right(true);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   @override
@@ -82,7 +82,11 @@ class AuthRepositoryImpl extends AuthRepository {
       if (roles.contains('User')) {
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
-        // Lưu tokens vào SharedPreferences
+        
+        // Lưu userId vào SharedPreferences
+        sharedPreferences.setString('userId', response.data['data']['userId']);
+        
+        // Lưu tokens vào SharedPreferences  
         sharedPreferences.setString(
             'accessToken', response.data['data']['tokens']['accessToken']);
         sharedPreferences.setString(
@@ -91,9 +95,21 @@ class AuthRepositoryImpl extends AuthRepository {
         sharedPreferences.setString(
             'fullName', response.data['data']['fullName']);
         sharedPreferences.setString('email', response.data['data']['email']);
-        return Right(response);
+        
+        // Xử lý device token
+        String token = await getDeviceToken();
+        print("Token: $token");
+        if (token == "empty token") {
+          return Left("Không thể lấy device token");
+        }
+        
+        Either deviceTokenResult = await registerDeviceToken(token);
+        return deviceTokenResult.fold(
+          (error) => Left("Không thể đăng ký device token"), 
+          (success) => Right(response)
+        );
       }
-      return Left("Login failed: You don't have access with this role.");
+      return Left("Đăng nhập thất bại: Bạn không có quyền truy cập với role này.");
     });
   }
   

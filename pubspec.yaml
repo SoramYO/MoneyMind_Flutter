@@ -47,6 +47,10 @@ dependencies:
   retrofit:
   riverpod_annotation:
   flutter_riverpod:
+  firebase_analytics: ^10.8.0
+  material:
+  intl:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

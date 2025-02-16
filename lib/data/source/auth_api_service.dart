@@ -19,12 +19,18 @@ class AuthApiServiceImpl extends AuthApiService {
   @override
   Future<Either> signup(SignupReqParams signupReq) async {
     try {
-      var response =
-          await sl<DioClient>().post(ApiUrls.register, data: signupReq.toMap());
-
-      return Right(response);
+      var response = await sl<DioClient>().post(
+        ApiUrls.register, 
+        data: signupReq.toMap()
+      );
+      
+      if (response.statusCode == 200) {
+        return Right(response);
+      }
+      return Left(response.data.toString());
+      
     } on DioException catch (e) {
-      return Left(e.response!.toString());
+      return Left(e.response?.data?.toString() ?? "Lỗi đăng ký");
     }
   }
 
@@ -107,11 +113,25 @@ class AuthApiServiceImpl extends AuthApiService {
   
   @override
   Future<Either> registerDeviceToken(String deviceToken) async {
-    var response = await sl<DioClient>().post(ApiUrls.registerToken, data: {
-      'deviceToken': deviceToken,
-    });
-    return response.statusCode == 200
-        ? Right(response)
-        : Left(response.statusMessage);
+    try {
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      var accessToken = sharedPreferences.getString('accessToken');
+      
+      var response = await sl<DioClient>().post(
+        ApiUrls.registerToken,
+        data: {'token': deviceToken},
+        options: Options(
+          headers: {'Authorization': 'Bearer $accessToken'}
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        return Right(response);
+      }
+      return Left(response.data.toString());
+      
+    } on DioException catch (e) {
+      return Left(e.response?.data?.toString() ?? "Lỗi đăng ký device token");
+    }
   }
 }
