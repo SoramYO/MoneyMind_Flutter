@@ -38,6 +38,18 @@ dependencies:
   dartz: ^0.10.1
   logger: ^2.5.0
   shared_preferences: ^2.3.5
+  firebase_messaging: ^14.7.20
+  firebase_core: ^2.27.1
+  http:
+  googleapis:
+  googleapis_auth:
+  flutter_local_notifications: ^16.3.2
+  retrofit:
+  riverpod_annotation:
+  flutter_riverpod:
+  firebase_analytics: ^10.8.0
+  material:
+  intl:
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +66,20 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/logo.jpg
+  android_12:
+    color: "#ffffff"
+    image: assets/images/logo.jpg
+
+# config launcher icon
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.jpg"
+  min_sdk_android: 21 
+   
 flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
