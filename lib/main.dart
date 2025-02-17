@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:my_project/presentation/auth/bloc/auth_state.dart';
 import 'package:my_project/presentation/auth/bloc/auth_state_cubit.dart';
 import 'presentation/auth/pages/signin.dart';
 import 'presentation/main/main_tab_view.dart';
 import 'service_locator.dart';
-import 'firebase_options.dart';
-import 'utils/firebase_utils.dart';
 import 'dart:io';
 
 class MyHttpOverrides extends HttpOverrides {
@@ -49,6 +46,8 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
+            debugShowCheckedModeBanner: false,
+
             home: state is AuthenticatedState 
                 ? const MainTabView()
                 : const SigninPage(),
