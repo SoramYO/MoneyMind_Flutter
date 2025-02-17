@@ -6,9 +6,15 @@ import '../source/transaction_api_service.dart';
 
 class TransactionRepositoryImpl implements TransactionRepository {
   @override
-  Future<Either<String, List<Transaction>>> getTransactions(String userId) async {
+  Future<Either<String, List<Transaction>>> getTransactions(
+    String userId, {
+    Map<String, String>? queryParams,
+  }) async {
     try {
-      final result = await sl<TransactionApiService>().getTransactions(userId);
+      final result = await sl<TransactionApiService>().getTransactions(
+        userId,
+        queryParams: queryParams,
+      );
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),

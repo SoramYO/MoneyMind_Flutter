@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../home/pages/home.dart';
-import '../transaction/pages/transaction_list_view.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:my_project/presentation/home/pages/home.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_list_view.dart';
+import 'package:my_project/core/constants/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../profile/pages/user_profile.dart';
+import 'package:my_project/presentation/profile/pages/user_profile.dart';
 
 class MainTabView extends StatefulWidget {
   const MainTabView({super.key});

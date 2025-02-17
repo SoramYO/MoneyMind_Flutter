@@ -7,7 +7,13 @@ import 'package:my_project/service_locator.dart';
 class TransactionListUseCase implements UseCase<Either, Transaction> {
 
   @override
-  Future<Either> call({Transaction? param}) async {
-    return sl<TransactionRepository>().getTransactions(param!.userId);
+  Future<Either> call({
+    Transaction? param,
+    Map<String, String>? queryParams,
+  }) async {
+    return sl<TransactionRepository>().getTransactions(
+      param!.userId,
+      queryParams: queryParams,
+    );
   }
 }

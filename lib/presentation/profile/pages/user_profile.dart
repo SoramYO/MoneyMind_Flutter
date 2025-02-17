@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_project/presentation/home/pages/home.dart';
 import 'package:my_project/presentation/main/main_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../domain/repository/auth.dart';
-import '../../../service_locator.dart';
+import 'package:my_project/core/constants/app_colors.dart';
+import 'package:my_project/domain/repository/auth.dart';
+import 'package:my_project/service_locator.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
