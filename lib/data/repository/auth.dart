@@ -96,18 +96,20 @@ class AuthRepositoryImpl extends AuthRepository {
             'fullName', response.data['data']['fullName']);
         sharedPreferences.setString('email', response.data['data']['email']);
         
-        // Xử lý device token
-        String token = await getDeviceToken();
-        print("Token: $token");
-        if (token == "empty token") {
-          return Left("Không thể lấy device token");
-        }
+        // // Xử lý device token
+        // String token = await getDeviceToken();
+        // print("Token: $token");
+        // if (token == "empty token") {
+        //   return Left("Không thể lấy device token");
+        // }
         
-        Either deviceTokenResult = await registerDeviceToken(token);
-        return deviceTokenResult.fold(
-          (error) => Left("Không thể đăng ký device token"), 
-          (success) => Right(response)
-        );
+        // Either deviceTokenResult = await registerDeviceToken(token);
+        // return deviceTokenResult.fold(
+        //   (error) => Left("Không thể đăng ký device token"), 
+        //   (success) => Right(response)
+        // );
+
+        return Right(response);
       }
       return Left("Đăng nhập thất bại: Bạn không có quyền truy cập với role này.");
     });
