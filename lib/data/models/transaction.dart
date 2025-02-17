@@ -1,5 +1,3 @@
-import '../../domain/entities/transaction.dart';
-
 class Tag {
   final String id;
   final String name;
@@ -8,7 +6,7 @@ class Tag {
 
   Tag({
     required this.id,
-    required this.name,
+    required this.name, 
     required this.description,
     required this.color,
   });
@@ -32,7 +30,7 @@ class Tag {
   }
 }
 
-class TransactionModel {
+class Transaction {
   final String id;
   final String recipientName;
   final double amount;
@@ -44,7 +42,7 @@ class TransactionModel {
   final String? walletId;
   final List<Tag> tags;
 
-  TransactionModel({
+  Transaction({
     required this.id,
     required this.recipientName,
     required this.amount,
@@ -57,8 +55,8 @@ class TransactionModel {
     required this.tags,
   });
 
-  factory TransactionModel.fromJson(Map<String, dynamic> json) {
-    return TransactionModel(
+  factory Transaction.fromJson(Map<String, dynamic> json) {
+    return Transaction(
       id: json['id'],
       recipientName: json['recipientName'],
       amount: json['amount'].toDouble(),

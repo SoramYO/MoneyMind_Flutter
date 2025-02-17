@@ -1,11 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import '../../domain/repository/transaction.dart';
 import '../../service_locator.dart';
 import '../models/transaction.dart';
 import '../source/transaction_api_service.dart';
 
-class TransactionRepositoryImpl extends TransactionRepository {
+class TransactionRepositoryImpl implements TransactionRepository {
   @override
   Future<Either<String, List<Transaction>>> getTransactions(
     String userId, {
@@ -26,10 +25,9 @@ class TransactionRepositoryImpl extends TransactionRepository {
   }
 
   @override
-  Future<Either> createTransaction(TransactionModel transaction) async {
+  Future<Either<String, Transaction>> createTransaction(Transaction transaction) async {
     try {
-      final result =
-          await sl<TransactionApiService>().createTransaction(transaction);
+      final result = await sl<TransactionApiService>().createTransaction(transaction);
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),
@@ -40,10 +38,9 @@ class TransactionRepositoryImpl extends TransactionRepository {
   }
 
   @override
-  Future<Either> updateTransaction(TransactionModel transaction) async {
+  Future<Either<String, Transaction>> updateTransaction(Transaction transaction) async {
     try {
-      final result =
-          await sl<TransactionApiService>().updateTransaction(transaction);
+      final result = await sl<TransactionApiService>().updateTransaction(transaction);
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),
@@ -65,4 +62,4 @@ class TransactionRepositoryImpl extends TransactionRepository {
       return Left(e.toString());
     }
   }
-}
+} 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_project/domain/entities/transaction.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/data/models/transaction.dart';
 import 'package:my_project/service_locator.dart';
@@ -8,7 +7,7 @@ import 'package:my_project/presentation/transaction/widgets/filter_bottom_sheet.
 import 'package:my_project/core/utils/hex_color.dart';
 class TransactionListView extends StatefulWidget {
   final String userId;
-
+  
   const TransactionListView({
     super.key,
     required this.userId,
@@ -19,7 +18,7 @@ class TransactionListView extends StatefulWidget {
 }
 
 class _TransactionListViewState extends State<TransactionListView> {
-  List<TransactionEntity> transactions = [];
+  List<Transaction> transactions = [];
   bool isLoading = false;
   String? error;
   int totalRecord = 0;
