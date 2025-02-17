@@ -6,23 +6,32 @@ import '../../service_locator.dart';
 import '../models/transaction.dart';
 
 abstract class TransactionApiService {
-  Future<Either<String, List<Transaction>>> getTransactions(String userId);
+  Future<Either<String, List<Transaction>>> getTransactions(
+    String userId, {
+    Map<String, String>? queryParams,
+  });
   Future<Either<String, Transaction>> createTransaction(Transaction transaction);
   Future<Either<String, Transaction>> updateTransaction(Transaction transaction);
   Future<Either<String, bool>> deleteTransaction(String id);
 }
 
 class TransactionApiServiceIml implements TransactionApiService {
-    @override
-  Future<Either<String, List<Transaction>>> getTransactions(String userId) async {
+  @override
+  Future<Either<String, List<Transaction>>> getTransactions(
+    String userId, {
+    Map<String, String>? queryParams,
+  }) async {
     try {
       final response = await sl<DioClient>().get(
-        '${ApiUrls.transactions}?userId=$userId',
+        '${ApiUrls.transactions}/$userId',
+        queryParameters: queryParams,
       );
       
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['data'];
-        final transactions = data.map((json) => Transaction.fromJson(json)).toList();
+        final List<dynamic> data = response.data['data']['data'];
+        final transactions = data
+            .map((json) => Transaction.fromJson(json as Map<String, dynamic>))
+            .toList();
         return Right(transactions);
       }
       

@@ -84,4 +84,19 @@ class Transaction {
       'tags': tags.map((tag) => tag.toJson()).toList(),
     };
   }
+
+  factory Transaction.fromMap(Map<String, dynamic> map) {
+    return Transaction(
+      id: map['id'],
+      recipientName: map['recipientName'],
+      amount: map['amount'].toDouble(),
+      description: map['description'],
+      transactionDate: DateTime.parse(map['transactionDate']),
+      createAt: DateTime.parse(map['createAt']),
+      lastUpdateAt: DateTime.parse(map['lastUpdateAt']),
+      userId: map['userId'],
+      walletId: map['walletId'],
+      tags: (map['tags'] as List).map((tag) => Tag.fromJson(tag)).toList(),
+    );
+  }
 } 

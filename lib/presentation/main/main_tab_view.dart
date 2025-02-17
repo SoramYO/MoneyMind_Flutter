@@ -4,7 +4,7 @@ import '../home/pages/home.dart';
 import '../transaction/pages/transaction_list_view.dart';
 import '../../core/constants/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../profile/pages/user_profile.dart';
+import 'package:my_project/presentation/profile/pages/user_profile.dart';
 
 class MainTabView extends StatefulWidget {
   const MainTabView({super.key});
@@ -46,6 +46,7 @@ class _MainTabViewState extends State<MainTabView> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 1,
               blurRadius: 10,
@@ -115,4 +116,4 @@ class _MainTabViewState extends State<MainTabView> {
       ),
     );
   }
-} 
+}
