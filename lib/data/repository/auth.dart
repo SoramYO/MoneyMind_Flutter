@@ -20,7 +20,7 @@ class AuthRepositoryImpl extends AuthRepository {
       if (response.statusCode == 200) {
         return Right(response.data); // Trả về message thành công
       }
-      return Left("Đăng ký thất bại"); 
+      return Left("Đăng ký thất bại");
     });
   }
 
@@ -60,10 +60,11 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<Either> logout() async {
     try {
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
       // Xóa tất cả dữ liệu trong SharedPreferences
       await sharedPreferences.clear();
-      
+
       return const Right(true);
     } catch (e) {
       return Left(e.toString());
@@ -81,11 +82,11 @@ class AuthRepositoryImpl extends AuthRepository {
       if (roles.contains('User')) {
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
-        
+
         // Lưu userId vào SharedPreferences
         sharedPreferences.setString('userId', response.data['data']['userId']);
-        
-        // Lưu tokens vào SharedPreferences  
+
+        // Lưu tokens vào SharedPreferences
         sharedPreferences.setString(
             'accessToken', response.data['data']['tokens']['accessToken']);
         sharedPreferences.setString(
@@ -94,35 +95,35 @@ class AuthRepositoryImpl extends AuthRepository {
         sharedPreferences.setString(
             'fullName', response.data['data']['fullName']);
         sharedPreferences.setString('email', response.data['data']['email']);
-        
+
         // // Xử lý device token
         // String token = await getDeviceToken();
         // print("Token: $token");
         // if (token == "empty token") {
         //   return Left("Không thể lấy device token");
         // }
-        
+
         // Either deviceTokenResult = await registerDeviceToken(token);
         // return deviceTokenResult.fold(
-        //   (error) => Left("Không thể đăng ký device token"), 
+        //   (error) => Left("Không thể đăng ký device token"),
         //   (success) => Right(response)
         // );
 
         return Right(response);
       }
-      return Left("Đăng nhập thất bại: Bạn không có quyền truy cập với role này.");
+      return Left(
+          "Đăng nhập thất bại: Bạn không có quyền truy cập với role này.");
     });
   }
-  
+
   @override
   Future<Either> registerDeviceToken(String deviceToken) async {
-      Either result = await sl<AuthApiService>().registerDeviceToken(deviceToken);
-      return result.fold((error) {
-        return Left(error);
-      }, (data) {
-        Response response = data;
-        return Right(response);
-      });
-    
+    Either result = await sl<AuthApiService>().registerDeviceToken(deviceToken);
+    return result.fold((error) {
+      return Left(error);
+    }, (data) {
+      Response response = data;
+      return Right(response);
+    });
   }
 }

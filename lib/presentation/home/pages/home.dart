@@ -13,7 +13,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var media = MediaQuery.sizeOf(context);
-    
+
     return Scaffold(
    appBar: AppBar(
         backgroundColor: Colors.green, // Set the background color to green
@@ -66,12 +66,10 @@ class _HomePageState extends State<HomePage> {
             Container(
               height: media.width * 1.1,
               decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25)
-                )
-              ),
+                  color: Colors.grey[900],
+                  borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25))),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -96,18 +94,15 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           "2.500.000đ",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 40,
-                            fontWeight: FontWeight.w700
-                          ),
+                              color: Colors.white,
+                              fontSize: 40,
+                              fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           "Chi tiêu tháng này",
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 16
-                          ),
+                          style:
+                              TextStyle(color: Colors.grey[400], fontSize: 16),
                         ),
                       ],
                     ),

@@ -43,7 +43,6 @@ class _SigninPageState extends State<SigninPage> {
         child: BlocListener<ButtonStateCubit, ButtonState>(
           listener: (context, state) {
             if (state is ButtonSuccessState) {
-              context.read<AuthStateCubit>().loggedIn();
               Navigator.pushReplacementNamed(context, '/main');
             }
             if (state is ButtonFailureState) {
