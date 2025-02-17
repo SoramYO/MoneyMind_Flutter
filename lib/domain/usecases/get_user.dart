@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import '../../core/usecase/usecase.dart';
-import '../../service_locator.dart';
-import '../repository/auth.dart';
+import 'package:my_project/core/usecase/usecase.dart';
+import 'package:my_project/service_locator.dart';
+import 'package:my_project/domain/repository/auth.dart';
 
 class GetUserUseCase implements UseCase<Either, dynamic> {
   @override

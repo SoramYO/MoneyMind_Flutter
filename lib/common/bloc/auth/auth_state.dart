@@ -5,3 +5,5 @@ class AppInitialState extends AuthState {}
 class Authenticated extends AuthState {}
 
 class UnAuthenticated extends AuthState {}
+
+class AuthLoadingState extends AuthState {}

@@ -46,6 +46,7 @@ class _MainTabViewState extends State<MainTabView> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 1,
               blurRadius: 10,
@@ -72,12 +73,29 @@ class _MainTabViewState extends State<MainTabView> {
                     color: selectTab == 0 ? AppColors.primary : Colors.grey,
                   ),
                 ),
+
                IconButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
                     );
+
+//                 IconButton(
+//                   onPressed: () async {
+//                     if (userId != null) {
+//                       setState(() {
+//                         selectTab = 1;
+//                         currentTabView = TransactionListView(userId: userId!);
+//                       });
+//                     } else {
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         const SnackBar(
+//                             content:
+//                                 Text('Không tìm thấy thông tin người dùng')),
+//                       );
+//                     }
+
                   },
                   icon: Icon(
                     Icons.receipt_long,
@@ -115,4 +133,4 @@ class _MainTabViewState extends State<MainTabView> {
       ),
     );
   }
-} 
+}
