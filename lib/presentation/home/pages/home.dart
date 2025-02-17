@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_project/presentation/auth/pages/signin.dart';
+import 'package:my_project/presentation/profile/pages/user_profile.dart';
 import '../../../common/bloc/button/button_state.dart';
 import '../../../common/bloc/button/button_state_cubit.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
@@ -25,6 +26,50 @@ class _HomePageState extends State<HomePage> {
     var media = MediaQuery.sizeOf(context);
     
     return Scaffold(
+   appBar: AppBar(
+        backgroundColor: Colors.green, // Set the background color to green
+        title: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserProfile()),
+                );
+              },
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Wallet'),
+                Text(
+                  '2000 VND',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.chat),
+            onPressed: () {
+              // Add your chat action here
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              // Add your add action here
+            },
+          ),
+        ],
+      ),
+
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
@@ -43,7 +88,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Positioned(
                     top: media.width * 0.15,
-                    child: Container(
+                    child: SizedBox(
                       width: media.width * 0.8,
                       height: media.width * 0.8,
                       child: CustomPaint(
