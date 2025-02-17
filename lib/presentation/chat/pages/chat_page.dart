@@ -1,5 +1,6 @@
 // lib/presentation/chat/chat_page.dart
 import 'package:flutter/material.dart';
+import 'package:my_project/core/configs/app_config.dart';
 import 'package:my_project/data/source/transaction_api_service.dart';
 import 'package:my_project/services/chat_transaction_service.dart';
 import 'package:my_project/services/gemini_service.dart';
@@ -29,7 +30,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _chatService = ChatTransactionService(
-      GeminiService("AIzaSyCgV3ESGRwgcUyzG9e1MF9GvI4sYJ81zps"),
+      GeminiService(AppConfig.geminiApiKey),
       sl<TransactionApiService>(),
     );
     _loadChatHistory();
