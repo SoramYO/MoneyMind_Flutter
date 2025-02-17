@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_project/presentation/auth/pages/signin.dart';
 import 'package:my_project/presentation/profile/pages/user_profile.dart';
-import '../../../common/bloc/button/button_state.dart';
-import '../../../common/bloc/button/button_state_cubit.dart';
-import '../../../common/widgets/button/basic_app_button.dart';
-import '../../../domain/entities/user.dart';
-import '../../../domain/usecases/logout.dart';
-import '../../../service_locator.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../common/widgets/custom_arc_painter.dart';
+import 'package:my_project/common/widgets/custom_arc_painter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

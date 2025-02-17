@@ -2,13 +2,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_project/core/constants/app_colors.dart';
-import '../../../common/bloc/button/button_state.dart';
-import '../../../common/bloc/button/button_state_cubit.dart';
-import '../../../common/widgets/button/basic_app_button.dart';
-import '../../../data/models/signin_req_params.dart';
-import '../../../domain/usecases/signin.dart';
-import '../../../service_locator.dart';
+import 'package:my_project/common/bloc/button/button_state.dart';
+import 'package:my_project/common/bloc/button/button_state_cubit.dart';
+import 'package:my_project/common/widgets/button/basic_app_button.dart';
+import 'package:my_project/data/models/signin_req_params.dart';
+import 'package:my_project/domain/usecases/signin.dart';
+import 'package:my_project/service_locator.dart';
 import 'signup.dart';
+
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});

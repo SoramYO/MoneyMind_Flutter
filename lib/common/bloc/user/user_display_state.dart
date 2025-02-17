@@ -1,4 +1,4 @@
-import '../../../domain/entities/user.dart';
+import 'package:my_project/domain/entities/user.dart';
 
 abstract class UserDisplayState {}
 

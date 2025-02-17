@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/is_logged_in.dart';
-import '../../../service_locator.dart';
+import 'package:my_project/domain/usecases/is_logged_in.dart';
+import 'package:my_project/service_locator.dart';
 import 'auth_state.dart';
 
 class AuthStateCubit extends Cubit<AuthState> {
