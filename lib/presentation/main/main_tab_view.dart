@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_edit_add_view.dart';
 import '../home/pages/home.dart';
 import '../transaction/pages/transaction_list_view.dart';
 import '../../core/constants/app_colors.dart';
@@ -71,21 +72,12 @@ class _MainTabViewState extends State<MainTabView> {
                     color: selectTab == 0 ? AppColors.primary : Colors.grey,
                   ),
                 ),
-                IconButton(
-                  onPressed: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    final userId = prefs.getString('userId');
-                    
-                    if (userId != null) {
-                      setState(() {
-                        selectTab = 1;
-                        currentTabView = TransactionListView(userId: userId);
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Không tìm thấy thông tin người dùng')),
-                      );
-                    }
+               IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
+                    );
                   },
                   icon: Icon(
                     Icons.receipt_long,
