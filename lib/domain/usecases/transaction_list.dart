@@ -4,10 +4,9 @@ import 'package:my_project/data/models/transaction.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/service_locator.dart';
 
-class TransactionListUseCase implements UseCase<Either, Transaction> {
-
+class TransactionListUseCase implements UseCase<Either, dynamic> {
   @override
-  Future<Either> call({Transaction? param}) async {
+  Future<Either> call({dynamic param}) async {
     return sl<TransactionRepository>().getTransactions(param!.userId);
   }
 }

@@ -1,3 +1,5 @@
+import '../../domain/entities/transaction.dart';
+
 class Tag {
   final String id;
   final String name;
@@ -6,7 +8,7 @@ class Tag {
 
   Tag({
     required this.id,
-    required this.name, 
+    required this.name,
     required this.description,
     required this.color,
   });
@@ -30,7 +32,7 @@ class Tag {
   }
 }
 
-class Transaction {
+class TransactionModel {
   final String id;
   final String recipientName;
   final double amount;
@@ -42,7 +44,7 @@ class Transaction {
   final String? walletId;
   final List<Tag> tags;
 
-  Transaction({
+  TransactionModel({
     required this.id,
     required this.recipientName,
     required this.amount,
@@ -55,8 +57,8 @@ class Transaction {
     required this.tags,
   });
 
-  factory Transaction.fromJson(Map<String, dynamic> json) {
-    return Transaction(
+  factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    return TransactionModel(
       id: json['id'],
       recipientName: json['recipientName'],
       amount: json['amount'].toDouble(),
@@ -84,4 +86,21 @@ class Transaction {
       'tags': tags.map((tag) => tag.toJson()).toList(),
     };
   }
-} 
+}
+
+extension TransactionXModel on TransactionModel {
+  TransactionEntity toEntity() {
+    return TransactionEntity(
+      id: id,
+      recipientName: recipientName,
+      amount: amount,
+      description: description,
+      transactionDate: transactionDate,
+      createAt: createAt,
+      lastUpdateAt: lastUpdateAt,
+      userId: userId,
+      walletId: walletId,
+      tags: tags,
+    );
+  }
+}

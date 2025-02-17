@@ -8,9 +8,7 @@ import '../../../common/widgets/button/basic_app_button.dart';
 import '../../../data/models/signin_req_params.dart';
 import '../../../domain/usecases/signin.dart';
 import '../../../service_locator.dart';
-import '../../home/pages/home.dart';
 import 'signup.dart';
-import '../../../presentation/auth/bloc/auth_state_cubit.dart';
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
@@ -44,7 +42,6 @@ class _SigninPageState extends State<SigninPage> {
         child: BlocListener<ButtonStateCubit, ButtonState>(
           listener: (context, state) {
             if (state is ButtonSuccessState) {
-              context.read<AuthStateCubit>().loggedIn();
               Navigator.pushReplacementNamed(context, '/main');
             }
             if (state is ButtonFailureState) {

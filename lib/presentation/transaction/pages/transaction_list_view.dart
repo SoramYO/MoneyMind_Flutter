@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/domain/entities/transaction.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import '../../../data/models/transaction.dart';
 import '../../../service_locator.dart';
 import 'package:intl/intl.dart';
 
-
 class TransactionListView extends StatefulWidget {
   final String userId;
-  
+
   const TransactionListView({
     super.key,
     required this.userId,
@@ -18,7 +18,7 @@ class TransactionListView extends StatefulWidget {
 }
 
 class _TransactionListViewState extends State<TransactionListView> {
-  List<Transaction> transactions = [];
+  List<TransactionEntity> transactions = [];
   bool isLoading = false;
   String? error;
   int totalRecord = 0;
@@ -36,7 +36,8 @@ class _TransactionListViewState extends State<TransactionListView> {
       error = null;
     });
 
-    final result = await sl<TransactionRepository>().getTransactions(widget.userId);
+    final result =
+        await sl<TransactionRepository>().getTransactions(widget.userId);
 
     setState(() {
       isLoading = false;
@@ -62,7 +63,7 @@ class _TransactionListViewState extends State<TransactionListView> {
       itemBuilder: (context, index) {
         final transaction = transactions[index];
         final tag = transaction.tags.isNotEmpty ? transaction.tags.first : null;
-        
+
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -83,7 +84,9 @@ class _TransactionListViewState extends State<TransactionListView> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: tag != null ? HexColor(tag.color).withOpacity(0.2) : Colors.grey[200],
+                color: tag != null
+                    ? HexColor(tag.color).withOpacity(0.2)
+                    : Colors.grey[200],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -104,7 +107,8 @@ class _TransactionListViewState extends State<TransactionListView> {
                 if (tag != null)
                   Container(
                     margin: const EdgeInsets.only(top: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: HexColor(tag.color).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
@@ -119,7 +123,8 @@ class _TransactionListViewState extends State<TransactionListView> {
                   ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat('dd/MM/yyyy HH:mm').format(transaction.transactionDate),
+                  DateFormat('dd/MM/yyyy HH:mm')
+                      .format(transaction.transactionDate),
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
@@ -148,4 +153,4 @@ class HexColor extends Color {
   }
 
   HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
-} 
+}
