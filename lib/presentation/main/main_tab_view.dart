@@ -4,7 +4,7 @@ import '../home/pages/home.dart';
 import '../transaction/pages/transaction_list_view.dart';
 import '../../core/constants/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_project/presentation/profile/pages/user_profile.dart';
+import '../profile/pages/user_profile.dart';
 
 class MainTabView extends StatefulWidget {
   const MainTabView({super.key});
@@ -73,12 +73,29 @@ class _MainTabViewState extends State<MainTabView> {
                     color: selectTab == 0 ? AppColors.primary : Colors.grey,
                   ),
                 ),
+
                IconButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
                     );
+
+//                 IconButton(
+//                   onPressed: () async {
+//                     if (userId != null) {
+//                       setState(() {
+//                         selectTab = 1;
+//                         currentTabView = TransactionListView(userId: userId!);
+//                       });
+//                     } else {
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         const SnackBar(
+//                             content:
+//                                 Text('Không tìm thấy thông tin người dùng')),
+//                       );
+//                     }
+
                   },
                   icon: Icon(
                     Icons.receipt_long,
