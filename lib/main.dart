@@ -8,8 +8,6 @@ import 'package:my_project/core/configs/theme/app_theme.dart';
 import 'presentation/auth/pages/signin.dart';
 import 'presentation/main/main_tab_view.dart';
 import 'service_locator.dart';
-import 'firebase_options.dart';
-import 'utils/firebase_utils.dart';
 import 'dart:io';
 
 class MyHttpOverrides extends HttpOverrides {

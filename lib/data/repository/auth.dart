@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:my_project/utils/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repository/auth.dart';
 import '../../service_locator.dart';

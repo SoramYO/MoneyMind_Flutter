@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/presentation/home/pages/home.dart';
+import 'package:my_project/presentation/main/main_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../domain/repository/auth.dart';
@@ -32,6 +34,20 @@ class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: AppBar(
+        title: Text('Thông tin của tôi'),
+        backgroundColor: Colors.green, // Set the background color to green
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => MainTabView()),
+              (Route<dynamic> route) => false,
+            ); // Navigate directly to HomePage
+          },
+        ),
+      ),
       backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: SingleChildScrollView(
@@ -189,4 +205,4 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
-} 
+}
