@@ -9,8 +9,8 @@ class Tag {
   final String userId;
   final String? walletTypeId;
   final String? walletTypeName;
-  final String? walletTypeDescription ;
-   
+  final String? walletTypeDescription;
+
   Tag({
     required this.id,
     required this.name,
@@ -53,9 +53,7 @@ class Tag {
       'walletTypeName': walletTypeName,
     };
   }
-  
 }
-
 
 class Wallet {
   final String id;
@@ -64,7 +62,7 @@ class Wallet {
   final DateTime createdTime;
   final DateTime lastUpdatedTime;
   final String userId;
-   final List<Tag> tags;
+  final List<Tag> tags;
 
   Wallet({
     required this.id,
@@ -76,7 +74,7 @@ class Wallet {
     required this.tags,
   });
 
-   factory Wallet.fromJson(Map<String, dynamic> json) {
+  factory Wallet.fromJson(Map<String, dynamic> json) {
     return Wallet(
       id: json['id'],
       balance: json['balance'],
@@ -86,11 +84,9 @@ class Wallet {
       userId: json['userId'],
       tags: (json['tags'] as List).map((e) => Tag.fromJson(e)).toList(),
     );
+  }
 
-
-   }
-
-   Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'balance': balance,
@@ -100,5 +96,5 @@ class Wallet {
       'userId': userId,
       'tags': tags.map((e) => e.toJson()).toList(),
     };
-   }
+  }
 }
