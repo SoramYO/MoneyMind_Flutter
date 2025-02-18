@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/presentation/chat/pages/chat_page.dart';
 import 'package:my_project/presentation/profile/pages/user_profile.dart';
 import 'package:my_project/common/widgets/custom_arc_painter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,8 +12,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String? userId;
+    Future<void> _getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getString('userId');
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
+        _getUserId();
     var media = MediaQuery.sizeOf(context);
 
     return Scaffold(
@@ -47,7 +59,12 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.chat),
             onPressed: () {
-              // Add your chat action here
+              setState(() {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatPage(userId: userId!)),
+                );
+              });
             },
           ),
           IconButton(

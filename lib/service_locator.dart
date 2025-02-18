@@ -1,7 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:my_project/data/repository/transaction.dart';
+import 'package:my_project/data/repository/wallet_category.dart';
 import 'package:my_project/data/source/transaction_api_service.dart';
+import 'package:my_project/data/source/wallet_category_api_service.dart';
 import 'package:my_project/domain/repository/transaction.dart';
+import 'package:my_project/domain/repository/wallet_category.dart';
 import 'package:my_project/domain/usecases/transaction_list.dart';
 import 'core/network/dio_client.dart';
 import 'data/repository/auth.dart';
@@ -25,11 +28,12 @@ void setupServiceLocator() {
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());
   sl.registerSingleton<AuthLocalService>(AuthLocalServiceImpl());
   sl.registerSingleton<TransactionApiService>(TransactionApiServiceIml());
+sl.registerSingleton<WalletCategoryApiService>(WalletCategoryApiServiceImpl());
 
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   sl.registerSingleton<TransactionRepository>(TransactionRepositoryImpl());
-
+  sl.registerSingleton<WalletCategoryRepository>(WalletCategoryRepositoryImpl());
   // Usecases
   sl.registerSingleton<SignupUseCase>(SignupUseCase());
   sl.registerSingleton<IsLoggedInUseCase>(IsLoggedInUseCase());
