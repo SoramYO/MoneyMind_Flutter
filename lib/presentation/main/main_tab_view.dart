@@ -74,27 +74,27 @@ class _MainTabViewState extends State<MainTabView> {
                   ),
                 ),
 
-               IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
-                    );
+              //  IconButton(
+              //     onPressed: () {
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
+              //       );
 
-//                 IconButton(
-//                   onPressed: () async {
-//                     if (userId != null) {
-//                       setState(() {
-//                         selectTab = 1;
-//                         currentTabView = TransactionListView(userId: userId!);
-//                       });
-//                     } else {
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         const SnackBar(
-//                             content:
-//                                 Text('Không tìm thấy thông tin người dùng')),
-//                       );
-//                     }
+                IconButton(
+                  onPressed: () async {
+                    if (userId != null) {
+                      setState(() {
+                        selectTab = 1;
+                        currentTabView = TransactionListView(userId: userId!);
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Không tìm thấy thông tin người dùng')),
+                      );
+                    }
 
                   },
                   icon: Icon(
