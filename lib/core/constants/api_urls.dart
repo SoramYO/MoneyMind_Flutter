@@ -7,4 +7,5 @@ class ApiUrls {
   static const registerToken = '${baseURL}Authentications/register-token';
   static const transactions = '${baseURL}Transaction';
   static const wallet = '${baseURL}Wallet';
+  static const walletCategory = '${baseURL}WalletCategory';
 }

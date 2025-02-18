@@ -23,7 +23,7 @@ class MyHttpOverrides extends HttpOverrides {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator();
-  await dotenv.load(fileName: ".env");
+  //await dotenv.load(fileName: ".env");
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
