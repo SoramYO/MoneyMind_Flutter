@@ -19,6 +19,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   ChatBox? chat;
+  String? _chatId;
   List<Message> messages = [];
   int totalRecord = 0;
   int currentPage = 1;
@@ -104,7 +105,8 @@ class _ChatPageState extends State<ChatPage> {
           });
           // Sau khi layout được cập nhật, tính toán delta và cuộn mượt
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            double afterScrollHeight = _scrollController.position.maxScrollExtent;
+            double afterScrollHeight =
+                _scrollController.position.maxScrollExtent;
             double scrollOffsetDelta = afterScrollHeight - beforeScrollHeight;
             double newOffset = _scrollController.offset - scrollOffsetDelta;
             _scrollController.jumpTo(
@@ -181,40 +183,56 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _startSignalR() async {
-    await signalRService.start();
+ void _startSignalR() async {
+  await signalRService.start();
 
-    // Đăng ký sự kiện nhận tin nhắn từ backend
-    signalRService.onReceiveMessage((List<dynamic>? args) {
-      if (args == null || args.length < 2) {
-        print("SignalR: Received insufficient arguments");
-        return;
-      }
-      final String sender = args[0].toString();
-      final dynamic messageData = args[1];
+  // Đăng ký sự kiện nhận tin nhắn từ backend
+  signalRService.onReceiveMessage((List<dynamic>? args) {
+    if (args == null || args.length < 2) {
+      print("SignalR: Received insufficient arguments");
+      return;
+    }
+    print("SignalR: Received message: $args");
 
-      Future.microtask(() {
-        setState(() {
-          messages.add(
-            Message.fromReceivedData(
-              Map<String, dynamic>.from(messageData),
-            ),
-          );
-          isLoading = false;
-        });
-        // Sau khi thêm tin nhắn mới, cuộn xuống cuối
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollToBottom();
-        });
+    final String sender = args[0].toString();
+    final dynamic messageData = args[1];
+    print("SignalR: Received message from $sender: $messageData");
+
+    // Lấy chatId từ dữ liệu trả về
+    String newChatId = messageData['chatId'];
+    print("SignalR: Id $sender: $newChatId");
+
+    // Nếu _chatId chưa được cập nhật, cập nhật ngay
+    if (_chatId == null) {
+      setState(() {
+        _chatId = newChatId;
       });
-    });
-  }
+    }
+
+    // Cập nhật danh sách tin nhắn và tắt trạng thái loading
+    if (mounted) {
+      setState(() {
+        messages.add(
+          Message.fromReceivedData(
+            Map<String, dynamic>.from(messageData),
+          ),
+        );
+        isLoading = false;
+      });
+      // Sau khi cập nhật xong, cuộn xuống cuối
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
+    }
+  });
+}
+
 
   void _sendMessage() {
     String text = _controller.text.trim();
     if (text.isEmpty || isLoading) return;
     // Lấy chatId từ đối tượng chat nếu có
-    String? chatId = chat?.id;
+    String? chatIdToSend = _chatId ?? chat?.id;
     // Thêm tin nhắn của người dùng vào danh sách
     setState(() {
       messages.add(
@@ -232,7 +250,7 @@ class _ChatPageState extends State<ChatPage> {
       _scrollToBottom();
     });
     // Gửi tin nhắn qua SignalR
-    signalRService.sendMessage(chatId, widget.userId, text);
+    signalRService.sendMessage(chatIdToSend, widget.userId, text);
     _controller.clear();
   }
 

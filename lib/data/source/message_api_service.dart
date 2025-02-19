@@ -24,6 +24,7 @@ class MessageApiServiceIml implements MessageApiService {
       
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['data']['data'];
+        print("data: $data");
         final messages = data
             .map((json) => Message.fromJson(json as Map<String, dynamic>))
             .toList();

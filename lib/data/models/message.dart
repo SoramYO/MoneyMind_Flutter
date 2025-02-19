@@ -4,6 +4,7 @@ class Message {
     final String messageContent;
     final DateTime sentTime;
     final bool isBotResponse; 
+    final String? chatId;
 
     Message({
         this.id,
@@ -11,6 +12,7 @@ class Message {
         required this.messageContent,
         required this.sentTime,
         required this.isBotResponse,
+        this.chatId,
     });
 
     factory Message.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Message {
             messageContent: json['messageContent'],
             sentTime: DateTime.parse(json['sentTime']),
             isBotResponse: json['isBotResponse'],
+            chatId: json['chatId'],
         );
     }
 
@@ -43,6 +46,7 @@ class Message {
             ? DateTime.parse(json['sentTime'])
             : DateTime.now(),
         isBotResponse: json['isBotResponse'] ?? false,
+        chatId: json['chatId'],
         );
     }
 
