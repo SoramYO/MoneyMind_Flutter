@@ -51,6 +51,7 @@ dependencies:
   material:
   intl: ^0.18.0
   flutter_dotenv:
+  signalr_core:
 dev_dependencies:
   flutter_test:
     sdk: flutter

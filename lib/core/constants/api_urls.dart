@@ -8,4 +8,6 @@ class ApiUrls {
   static const transactions = '${baseURL}Transaction';
   static const wallet = '${baseURL}Wallet';
   static const walletCategory = '${baseURL}WalletCategory';
+  static const chat = '${baseURL}Chat';
+  static const message = '${baseURL}Message';
 }
