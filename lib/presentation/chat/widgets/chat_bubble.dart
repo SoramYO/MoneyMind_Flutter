@@ -1,57 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:my_project/data/models/chat_message.dart';
+import 'package:my_project/data/models/message.dart';
 
 class ChatBubble extends StatelessWidget {
-  final ChatMessage message;
+  final Message message;
 
   const ChatBubble({
-    super.key,
+    Key? key,
     required this.message,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: message.type == 'user' ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: message.type == 'user' 
-              ? Colors.green[100]
-              : message.isError 
-                  ? Colors.red[50]
-                  : Colors.grey[200],
-          borderRadius: BorderRadius.circular(16),
-          border: message.isError 
-              ? Border.all(color: Colors.red.withOpacity(0.5))
-              : null,
-        ),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.message,
-              style: TextStyle(
-                color: message.isError ? Colors.red[700] : Colors.black87,
-                fontSize: 14,
+    final bool isBot = message.isBotResponse;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Align(
+        alignment: isBot ? Alignment.centerLeft : Alignment.centerRight,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          decoration: BoxDecoration(
+            // Nếu là tin nhắn từ bot thì nền xanh, ngược lại nền trắng với border xanh
+            color: isBot ? Colors.green : Colors.white,
+            borderRadius: isBot
+                ? const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  )
+                : const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                  ),
+            border: isBot ? null : Border.all(color: Colors.green, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(2, 2),
               ),
+            ],
+          ),
+          child: Text(
+            message.messageContent,
+            style: TextStyle(
+              // Text trắng trên nền xanh và xanh đậm trên nền trắng
+              color: isBot ? Colors.white : Colors.green[800],
+              fontSize: 16,
             ),
-            const SizedBox(height: 4),
-            Text(
-              DateFormat('HH:mm dd/MM/yyyy').format(message.timestamp),
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 10,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
-} 
+}
