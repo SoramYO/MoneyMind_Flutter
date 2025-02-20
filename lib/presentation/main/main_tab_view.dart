@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_project/presentation/transaction/pages/transaction_edit_add_view.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_add.dart';
 import 'package:my_project/presentation/wallet_category/pages/wallet_category_list.dart';
 import '../home/pages/home.dart';
 import '../transaction/pages/transaction_list_view.dart';

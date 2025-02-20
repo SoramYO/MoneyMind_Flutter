@@ -50,7 +50,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
     }
   }
 
-  @override
+@override
   Future<Either<String, bool>> deleteTransaction(String id) async {
     try {
       final result = await sl<TransactionApiService>().deleteTransaction(id);

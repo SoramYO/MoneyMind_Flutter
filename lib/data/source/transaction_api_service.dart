@@ -74,11 +74,12 @@ class TransactionApiServiceIml implements TransactionApiService {
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
     }
   }
-  @override
+ @override
   Future<Either<String, bool>> deleteTransaction(String id) async {
     try {
-      final response = await sl<DioClient>().delete(
-        '${ApiUrls.transactions}/$id',
+      final response = await sl<DioClient>().put(
+        '${ApiUrls.transactions}/$id/delete',
+        data: {'isActive': false},
       );
       
       if (response.statusCode == 200) {
@@ -90,4 +91,5 @@ class TransactionApiServiceIml implements TransactionApiService {
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
     }
   }
-} 
+}
+

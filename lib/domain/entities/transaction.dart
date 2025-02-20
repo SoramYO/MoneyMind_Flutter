@@ -10,6 +10,7 @@ class TransactionEntity {
   final DateTime lastUpdateAt;
   final String userId;
   final String? walletId;
+  final bool isActive;
   final List<Tag> tags;
 
   TransactionEntity({
@@ -22,6 +23,7 @@ class TransactionEntity {
     required this.lastUpdateAt,
     required this.userId,
     this.walletId,
+    required this.isActive,
     required this.tags,
   });
 }
