@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/data/models/transaction.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_add.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_add.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:intl/intl.dart';
 import 'package:my_project/presentation/transaction/widgets/filter_bottom_sheet.dart';
 import 'package:my_project/core/utils/hex_color.dart';
+
 class TransactionListView extends StatefulWidget {
   final String userId;
-  
+
   const TransactionListView({
     super.key,
     required this.userId,
@@ -28,7 +31,7 @@ class _TransactionListViewState extends State<TransactionListView> {
   bool? isCategorized;
   DateTime? fromDate;
   DateTime? toDate;
-  
+
   // Group transactions by date
   Map<String, List<Transaction>> get groupedTransactions {
     final groups = <String, List<Transaction>>{};
@@ -39,18 +42,18 @@ class _TransactionListViewState extends State<TransactionListView> {
       }
       groups[date]!.add(transaction);
     }
-    
+
     // Sort the transactions within each group by date (newest first)
     for (var transactions in groups.values) {
       transactions.sort((a, b) => b.transactionDate.compareTo(a.transactionDate));
     }
-    
+
     // Sort the groups by date (newest first)
     final sortedKeys = groups.keys.toList()
       ..sort((a, b) => DateFormat('dd/MM/yyyy')
           .parse(b)
           .compareTo(DateFormat('dd/MM/yyyy').parse(a)));
-    
+
     return Map.fromEntries(
       sortedKeys.map((key) => MapEntry(key, groups[key]!)),
     );
@@ -136,12 +139,44 @@ class _TransactionListViewState extends State<TransactionListView> {
     );
   }
 
-  @override
+  Future<void> _deleteTransaction(String id) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final result = await sl<TransactionRepository>().deleteTransaction(id);
+
+    setState(() {
+      isLoading = false;
+      result.fold(
+        (errorMessage) => ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        ),
+        (success) {
+          if (success) {
+            transactions.removeWhere((transaction) => transaction.id == id);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Xóa giao dịch thành công')),
+            );
+          }
+        },
+      );
+    }); // deleteTransaction
+  } 
+
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions'),
+        title: const Text('Lịch sử giao dịch'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TransactionFormScreen()),
+            )),
+
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterDialog,
@@ -150,37 +185,38 @@ class _TransactionListViewState extends State<TransactionListView> {
       ),
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
-        child: isLoading 
-          ? const Center(child: CircularProgressIndicator())
-          : error != null
-            ? Center(child: Text(error!))
-            : ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: groupedTransactions.length,
-                itemBuilder: (context, index) {
-                  final date = groupedTransactions.keys.elementAt(index);
-                  final dailyTransactions = groupedTransactions[date]!;
-                  
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          date,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : error != null
+                ? Center(child: Text(error!))
+                : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: groupedTransactions.length,
+                    itemBuilder: (context, index) {
+                      final date = groupedTransactions.keys.elementAt(index);
+                      final dailyTransactions = groupedTransactions[date]!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              date,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      ...dailyTransactions.map((transaction) => TransactionCard(
-                        transaction: transaction,
-                      )),
-                    ],
-                  );
-                },
-              ),
+                          ...dailyTransactions.map((transaction) => TransactionCard(
+                                transaction: transaction,
+                                onDelete: () => _deleteTransaction(transaction.id),
+                              )),
+                        ],
+                      );
+                    },
+                  ),
       ),
     );
   }
@@ -188,16 +224,18 @@ class _TransactionListViewState extends State<TransactionListView> {
 
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
+  final VoidCallback onDelete;
 
   const TransactionCard({
     super.key,
     required this.transaction,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     final tag = transaction.tags.isNotEmpty ? transaction.tags.first : null;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -232,17 +270,26 @@ class TransactionCard extends StatelessWidget {
             fontSize: 16,
           ),
         ),
-       subtitle: Text(
+        subtitle: Text(
           DateFormat('HH:mm dd/MM/yyyy').format(transaction.transactionDate),
           style: TextStyle(color: Colors.grey[600], fontSize: 12),
         ),
-        trailing: Text(
-          '-${NumberFormat('#,###').format(transaction.amount)}đ',
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '-${NumberFormat('#,###').format(transaction.amount)}đ',
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: onDelete,
+            ),
+          ],
         ),
       ),
     );
