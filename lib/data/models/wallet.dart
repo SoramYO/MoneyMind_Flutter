@@ -1,3 +1,5 @@
+import 'package:my_project/data/models/wallet_category.dart';
+
 class Tag {
   final String id;
   final String name;
@@ -62,7 +64,7 @@ class Wallet {
   final DateTime createdTime;
   final DateTime lastUpdatedTime;
   final String userId;
-  final List<Tag> tags;
+  final WalletCategory walletCategory;
 
   Wallet({
     required this.id,
@@ -71,7 +73,7 @@ class Wallet {
     required this.createdTime,
     required this.lastUpdatedTime,
     required this.userId,
-    required this.tags,
+    required this.walletCategory,
   });
 
   factory Wallet.fromJson(Map<String, dynamic> json) {
@@ -82,7 +84,7 @@ class Wallet {
       createdTime: DateTime.parse(json['createdTime']),
       lastUpdatedTime: DateTime.parse(json['lastUpdatedTime']),
       userId: json['userId'],
-      tags: (json['tags'] as List).map((e) => Tag.fromJson(e)).toList(),
+      walletCategory: WalletCategory.fromJson(json['walletCategory']),
     );
   }
 
@@ -94,7 +96,7 @@ class Wallet {
       'createdTime': createdTime.toIso8601String(),
       'lastUpdatedTime': lastUpdatedTime.toIso8601String(),
       'userId': userId,
-      'tags': tags.map((e) => e.toJson()).toList(),
+      'walletCategory': walletCategory.toJson(),
     };
   }
 }

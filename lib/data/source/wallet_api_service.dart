@@ -9,6 +9,9 @@ import '../models/transaction.dart';
 
 abstract class WalletApiService {
   Future<Either> getTotalBalance();
+  Future<Either<String, List<Wallet>>> getWallets({
+    Map<String, String>? queryParams,
+  });
   Future<Either<String, List<Transaction>>> getWalletByUserId(String userId);
   Future<Either<String, List<Transaction>>> getWalletByWalletId(
       String walletId);
@@ -125,6 +128,33 @@ class WalletApiServiceImpl implements WalletApiService {
       return Right(response);
     } on DioException catch (e) {
       return Left(e.response!.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, List<Wallet>>> getWallets(
+      {Map<String, String>? queryParams}) async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      var accessToken = sharedPreferences.getString('accessToken');
+      var userId = sharedPreferences.getString('userId');
+      final response = await sl<DioClient>().get(
+        '${ApiUrls.wallet}/$userId',
+        queryParameters: queryParams,
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data']['data'];
+        final wallets = data
+            .map((json) => Wallet.fromJson(json as Map<String, dynamic>))
+            .toList();
+        return Right(wallets);
+      }
+
+      return Left(response.data['message'] ?? 'Lỗi không xác định');
+    } on DioException catch (e) {
+      return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
     }
   }
 }

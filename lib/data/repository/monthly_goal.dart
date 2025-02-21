@@ -1,8 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
-import 'package:my_project/data/source/goal_item_api_service.dart';
 import 'package:my_project/data/source/monthly_goal_api_service.dart';
-import 'package:my_project/domain/repository/goal_item.dart';
 import 'package:my_project/domain/repository/monthly_goal.dart';
 import '../../service_locator.dart';
 

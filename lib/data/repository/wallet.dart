@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/data/source/wallet_api_service.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/service_locator.dart';
@@ -23,5 +24,21 @@ class WalletRepositoryImpl implements WalletRepository {
       }
       return Left("Lấy dữ liệu thất bại");
     });
+  }
+
+  @override
+  Future<Either<String, List<Wallet>>> getWallets(
+      {Map<String, String>? queryParams}) async {
+    try {
+      final result = await sl<WalletApiService>().getWallets(
+        queryParams: queryParams,
+      );
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 }
