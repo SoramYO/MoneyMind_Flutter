@@ -9,7 +9,7 @@ import 'package:my_project/presentation/wallet_category/widgets/filter_bottom_sh
 class WalletCategoryListView extends StatefulWidget {
   final String userId;
   final String? walletTypeId;
-  
+
   const WalletCategoryListView({
     super.key,
     required this.userId,
@@ -42,7 +42,8 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     });
 
     try {
-      final result = await sl<WalletCategoryRepository>().getWalletCategoryByUserId(
+      final result =
+          await sl<WalletCategoryRepository>().getWalletCategoryByUserId(
         widget.userId,
         widget.walletTypeId,
         currentPage,
@@ -81,12 +82,12 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
       }
       groups[typeName]!.add(category);
     }
-    
+
     // Sort categories trong mỗi nhóm
     for (var categories in groups.values) {
       categories.sort((a, b) => a.name.compareTo(b.name));
     }
-    
+
     return groups;
   }
 
@@ -200,15 +201,15 @@ class WalletCategoryCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (category.color != null 
-                      ? HexColor(category.color!).withOpacity(0.2) 
+                  color: (category.color != null
+                      ? HexColor(category.color!).withOpacity(0.2)
                       : Colors.grey[200]),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.category_outlined,
-                  color: category.color != null 
-                      ? HexColor(category.color!) 
+                  color: category.color != null
+                      ? HexColor(category.color!)
                       : Colors.grey,
                 ),
               ),
@@ -268,4 +269,4 @@ class WalletCategoryCard extends StatelessWidget {
       backgroundColor: Colors.grey[100],
     );
   }
-} 
+}

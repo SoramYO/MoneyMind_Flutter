@@ -74,28 +74,28 @@ class _MainTabViewState extends State<MainTabView> {
                     color: selectTab == 0 ? AppColors.primary : Colors.grey,
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const TransactionFormScreen()),
-                    );
+                // IconButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //           builder: (context) => const TransactionFormScreen()),
+                //     );
 
-//                 IconButton(
-//                   onPressed: () async {
-//                     if (userId != null) {
-//                       setState(() {
-//                         selectTab = 1;
-//                         currentTabView = TransactionListView(userId: userId!);
-//                       });
-//                     } else {
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         const SnackBar(
-//                             content:
-//                                 Text('Không tìm thấy thông tin người dùng')),
-//                       );
-//                     }
+                IconButton(
+                  onPressed: () async {
+                    if (userId != null) {
+                      setState(() {
+                        selectTab = 1;
+                        currentTabView = TransactionListView(userId: userId!);
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Không tìm thấy thông tin người dùng')),
+                      );
+                    }
                   },
                   icon: Icon(
                     Icons.receipt_long,

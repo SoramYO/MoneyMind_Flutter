@@ -1,0 +1,27 @@
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/constants/api_urls.dart';
+import '../../core/network/dio_client.dart';
+import '../../service_locator.dart';
+
+abstract class GoalItemApiService {
+  Future<Either> getTotalUsedAmount();
+}
+
+class GoalItemApiServiceImpl extends GoalItemApiService {
+  @override
+  Future<Either> getTotalUsedAmount() async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      var accessToken = sharedPreferences.getString('accessToken');
+      var userId = sharedPreferences.getString('userId');
+      var response = await sl<DioClient>().get('${ApiUrls.goalItem}/$userId',
+          options: Options(headers: {'Authorization': 'Bearer $accessToken'}));
+      return Right(response);
+    } on DioException catch (e) {
+      return Left(e.response!.toString());
+    }
+  }
+}
