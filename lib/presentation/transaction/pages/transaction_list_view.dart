@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/core/constants/app_colors.dart';
+import 'package:my_project/domain/repository/sheet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/data/models/transaction.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:intl/intl.dart';
 import 'package:my_project/presentation/transaction/widgets/filter_bottom_sheet.dart';
 import 'package:my_project/core/utils/hex_color.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_detail.dart';
 
 class TransactionListView extends StatefulWidget {
   final String userId;
@@ -29,6 +32,9 @@ class _TransactionListViewState extends State<TransactionListView> {
   bool? isCategorized;
   DateTime? fromDate;
   DateTime? toDate;
+  bool hasSheetId = false;
+  double offsetX = 0;
+  double offsetY = 0;
 
   // Group transactions by date
   Map<String, List<Transaction>> get groupedTransactions {
@@ -62,6 +68,7 @@ class _TransactionListViewState extends State<TransactionListView> {
   void initState() {
     super.initState();
     _loadTransactions();
+    _checkSheetStatus();
   }
 
   Future<void> _loadTransactions() async {
@@ -84,19 +91,32 @@ class _TransactionListViewState extends State<TransactionListView> {
       queryParams: queryParams,
     );
 
-    setState(() {
-      isLoading = false;
-      result.fold(
-        (errorMessage) => error = errorMessage,
-        (data) {
-          if (data is List<Transaction>) {
-            transactions = data;
-          } else {
-            error = 'Invalid data format';
-          }
-        },
-      );
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+        result.fold(
+          (errorMessage) => error = errorMessage,
+          (data) {
+            if (data is List<Transaction>) {
+              transactions = data;
+              // Cập nhật UI để ẩn nút thêm sheet nếu đã có dữ liệu
+              if (transactions.isNotEmpty) {
+                error = null;
+              }
+            } else {
+              error = 'Invalid data format';
+            }
+          },
+        );
+      });
+    }
+  }
+
+  Future<void> _checkSheetStatus() async {
+    final exists = await sl<SheetRepository>().checkSheetExists(widget.userId);
+    if (mounted) {
+      setState(() => hasSheetId = exists);
+    }
   }
 
   Future<void> _handleRefresh() async {
@@ -163,54 +183,311 @@ class _TransactionListViewState extends State<TransactionListView> {
     }); // deleteTransaction
   }
 
+  void _handleTransactionTap(Transaction transaction) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionDetailView(
+          transactionId: transaction.id,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToCreateTransaction() {
+    // Điều hướng đến màn hình tạo transaction
+  }
+
+  Future<void> _showAddSheetDialog() async {
+    final sheetIdController = TextEditingController();
+    bool isLoading = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Thêm Google Sheet'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: sheetIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Sheet ID',
+                  hintText: 'Nhập ID của Google Sheet',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (isLoading) const CircularProgressIndicator(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      setState(() => isLoading = true);
+                      try {
+                        final result = await sl<SheetRepository>().addSheetId(
+                          sheetIdController.text,
+                          widget.userId,
+                        );
+                        
+                        result.fold(
+                          (error) => ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error)),
+                          ),
+                          (success) {
+                            setState(() => hasSheetId = true);
+                            Navigator.pop(context);
+                            _showSyncConfirmation();
+                          },
+                        );
+                      } finally {
+                        if (mounted) {
+                          setState(() => isLoading = false);
+                        }
+                      }
+                    },
+              child: const Text('Lưu'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSyncConfirmation() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Đồng bộ ngay?'),
+        content: const Text('Bạn có muốn đồng bộ dữ liệu từ Google Sheet ngay bây giờ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Để sau'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Đồng bộ'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final hasSheetId = await sl<SheetRepository>().checkSheetExists(widget.userId);
+      if (!hasSheetId) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Vui lòng thêm Sheet ID trước khi đồng bộ')),
+        );
+        return;
+      }
+      setState(() => isLoading = true);
+      try {
+        final result = await sl<SheetRepository>().syncSheet(widget.userId);
+        result.fold(
+          (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(error)),
+            );
+          },
+          (success) => _loadTransactions(),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => isLoading = false);
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Transactions'),
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        title: const Text(
+          'Lịch sử giao dịch',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_list, color: Colors.white),
             onPressed: _showFilterDialog,
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : error != null
-                ? Center(child: Text(error!))
-                : ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: groupedTransactions.length,
-                    itemBuilder: (context, index) {
-                      final date = groupedTransactions.keys.elementAt(index);
-                      final dailyTransactions = groupedTransactions[date]!;
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: _handleRefresh,
+            child: Container(
+              color: AppColors.grayLight.withOpacity(0.3),
+              child: isLoading
+                  ? _buildLoading()
+                  : error != null
+                      ? _buildError(error!)
+                      : transactions.isEmpty
+                          ? _buildEmptyState()
+                          : _buildTransactionListContent(),
+            ),
+          ),
+          if (hasSheetId && transactions.isNotEmpty)
+            _buildFloatingSyncButton(),
+        ],
+      ),
+    );
+  }
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(
-                              date,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          ...dailyTransactions
-                              .map((transaction) => TransactionCard(
-                                    transaction: transaction,
-                                    onDelete: () =>
-                                        _deleteTransaction(transaction.id),
-                                  )),
-                        ],
-                      );
-                    },
-                  ),
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.insert_drive_file_outlined, size: 64, color: Colors.grey),
+          const SizedBox(height: 20),
+          const Text(
+            'Chưa có giao dịch nào',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+          const SizedBox(height: 30),
+          _buildActionButton(
+            hasSheetId ? 'Đồng bộ ngay' : 'Thêm Google Sheet',
+            hasSheetId ? Icons.sync : Icons.add,
+            hasSheetId ? _showSyncConfirmation : _showAddSheetDialog,
+          ),
+          const SizedBox(height: 15),
+          _buildActionButton(
+            'Thêm thủ công',
+            Icons.add,
+            _navigateToCreateTransaction,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(String text, IconData icon, VoidCallback onPressed) {
+    return SizedBox(
+      width: 250,
+      child: ElevatedButton.icon(
+        icon: Icon(icon, size: 20),
+        label: Text(text),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: AppColors.primary,
+      ),
+    );
+  }
+
+  Widget _buildError(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          error,
+          style: const TextStyle(color: Colors.red),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransactionListContent() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: groupedTransactions.length * 2,
+      itemBuilder: (context, index) {
+        if (index.isOdd) {
+          final groupIndex = index ~/ 2;
+          final date = groupedTransactions.keys.elementAt(groupIndex);
+          final transactions = groupedTransactions[date]!;
+          
+          return Column(
+            children: [
+              _buildDateHeader(date),
+              ...transactions.map((transaction) => TransactionCard(
+                transaction: transaction,
+                onTap: () => _handleTransactionTap(transaction),
+                onDelete: () => _deleteTransaction(transaction.id),
+              )),
+            ],
+          );
+        }
+        return const SizedBox(height: 16);
+      },
+    );
+  }
+
+  Widget _buildDateHeader(String date) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        date,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingSyncButton() {
+    return Positioned(
+      right: offsetX == 0 ? 20 : offsetX,
+      bottom: offsetY == 0 ? 20 : offsetY,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            offsetX = details.globalPosition.dx - 28;
+            offsetY = details.globalPosition.dy - 28;
+          });
+        },
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: Icon(Icons.sync, color: Colors.white),
+            onPressed: _showSyncConfirmation,
+          ),
+        ),
       ),
     );
   }
@@ -219,11 +496,13 @@ class _TransactionListViewState extends State<TransactionListView> {
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
   final VoidCallback? onDelete;
+  final VoidCallback? onTap;
 
   const TransactionCard({
     Key? key,
     required this.transaction,
     this.onDelete,
+    this.onTap,
   }) : super(key: key);
 
   void _showDeleteConfirmationDialog(BuildContext context) {
@@ -259,52 +538,78 @@ class TransactionCard extends StatelessWidget {
     final tag = transaction.tags.isNotEmpty ? transaction.tags.first : null;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            AppColors.lightGreen.withOpacity(0.1),
+          ],
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: AppColors.grayLight.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
-          width: 40,
-          height: 40,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
-            color: tag != null
-                ? HexColor(tag.color).withOpacity(0.2)
-                : Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
+            gradient: LinearGradient(
+              colors: [
+                tag != null ? HexColor(tag.color) : AppColors.primary,
+                tag != null
+                    ? HexColor(tag.color).withOpacity(0.7)
+                    : AppColors.primary.withOpacity(0.7),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
-            Icons.receipt_outlined,
-            color: tag != null ? HexColor(tag.color) : Colors.grey,
+            Icons.receipt_long_rounded,
+            color: Colors.white,
+            size: 28,
           ),
         ),
         title: Text(
           transaction.description,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 16,
+            color: AppColors.text,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(
-          DateFormat('HH:mm dd/MM/yyyy').format(transaction.transactionDate),
-          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            DateFormat('HH:mm dd/MM/yyyy').format(transaction.transactionDate),
+            style: TextStyle(
+              color: AppColors.textLight,
+              fontSize: 12,
+            ),
+          ),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               '-${NumberFormat('#,###').format(transaction.amount)}đ',
-              style: const TextStyle(
-                color: Colors.red,
+              style: TextStyle(
+                color: AppColors.error,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -312,14 +617,17 @@ class TransactionCard extends StatelessWidget {
             if (onDelete != null) ...[
               const SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: Icon(
+                  Icons.delete_rounded,
+                  color: AppColors.error.withOpacity(0.8),
+                ),
                 onPressed: () => _showDeleteConfirmationDialog(context),
               ),
-            ]
+            ],
           ],
         ),
+        onTap: onTap,
       ),
     );
   }
 }
-

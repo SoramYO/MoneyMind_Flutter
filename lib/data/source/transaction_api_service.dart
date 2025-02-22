@@ -15,6 +15,7 @@ abstract class TransactionApiService {
   Future<Either<String, Transaction>> updateTransaction(
       Transaction transaction);
   Future<Either<String, bool>> deleteTransaction(String id);
+  Future<Either<String, Transaction>> getTransactionById(String id);
 }
 
 class TransactionApiServiceIml implements TransactionApiService {
@@ -91,6 +92,22 @@ class TransactionApiServiceIml implements TransactionApiService {
         return const Right(true);
       }
 
+      return Left(response.data['message'] ?? 'Lỗi không xác định');
+    } on DioException catch (e) {
+      return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
+    }
+  }
+
+  @override
+  Future<Either<String, Transaction>> getTransactionById(String id) async {
+    try {
+      final response = await sl<DioClient>().get(
+        '${ApiUrls.transactions}/detail/$id',
+      );
+
+      if (response.statusCode == 200) {
+        return Right(Transaction.fromJson(response.data['data']));
+      }
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');

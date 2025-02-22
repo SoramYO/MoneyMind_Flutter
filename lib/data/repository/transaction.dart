@@ -62,4 +62,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, Transaction>> getTransactionById(String id) async {
+    try {
+      final result = await sl<TransactionApiService>().getTransactionById(id);
+      return result.fold(
+        (error) => Left(error),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 } 

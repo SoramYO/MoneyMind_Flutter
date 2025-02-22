@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/core/constants/app_colors.dart';
 import 'package:my_project/data/models/wallet_category.dart';
 import 'package:my_project/domain/repository/wallet_category.dart';
 import 'package:my_project/service_locator.dart';
@@ -130,7 +131,15 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh mục ví'),
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        title: const Text(
+          'Danh mục ví',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),

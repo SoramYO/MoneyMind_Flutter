@@ -126,4 +126,44 @@ class AuthRepositoryImpl extends AuthRepository {
       return Right(response);
     });
   }
+
+  // dart
+  @override
+  Future<Either> googleSignIn(String accessToken) async {
+    try {
+      final result = await sl<AuthApiService>().googleSignIn(accessToken);
+      return await result.fold((error) async {
+        return Left(error);
+      }, (data) async {
+        Response response = data;
+        var roles = response.data['data']['roles'];
+        if (roles.contains('User')) {
+          SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
+
+          // Save userId
+          sharedPreferences.setString(
+              'userId', response.data['data']['userId']);
+
+          // Save tokens
+          sharedPreferences.setString(
+              'accessToken', response.data['data']['tokens']['accessToken']);
+          sharedPreferences.setString(
+              'refreshToken', response.data['data']['tokens']['refreshToken']);
+
+          // Save temporary user info
+          sharedPreferences.setString(
+              'fullName', response.data['data']['fullName']);
+          sharedPreferences.setString('email', response.data['data']['email']);
+
+          return Right(true);
+        } else {
+          return Left(
+              "Đăng nhập thất bại: Bạn không có quyền truy cập với role này.");
+        }
+      });
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

@@ -359,7 +359,7 @@ class _HomePageState extends State<HomePage> {
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                        const SizedBox(width: 60),
+                                        const SizedBox(width: 140),
                                         Text(
                                           '${NumberFormat('#.##').format(totalUsedAmount * 100 / totalAmount)}%',
                                           style: TextStyle(
@@ -403,7 +403,7 @@ class _HomePageState extends State<HomePage> {
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    const SizedBox(width: 70),
+                                    const SizedBox(width: 40),
                                     Text(
                                       '$daysLeftOfMonth days left',
                                       style: TextStyle(
