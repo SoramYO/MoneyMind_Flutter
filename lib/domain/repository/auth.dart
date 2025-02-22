@@ -9,4 +9,5 @@ abstract class AuthRepository {
   Future<Either> getUser();
   Future<Either> logout();
   Future<Either> registerDeviceToken(String deviceToken);
+   Future<Either> googleSignIn( String token );
 }

@@ -6,10 +6,10 @@ import 'package:my_project/common/bloc/button/button_state.dart';
 import 'package:my_project/common/bloc/button/button_state_cubit.dart';
 import 'package:my_project/common/widgets/button/basic_app_button.dart';
 import 'package:my_project/data/models/signin_req_params.dart';
+import 'package:my_project/domain/usecases/google_signin.dart';
 import 'package:my_project/domain/usecases/signin.dart';
 import 'package:my_project/service_locator.dart';
 import 'signup.dart';
-
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
@@ -187,7 +187,10 @@ class _SigninPageState extends State<SigninPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildSocialButton('assets/images/google.png', () {}),
+        _buildSocialButton(
+          'assets/images/google.png',
+          () => _handleGoogleSignIn(context),
+        ),
         const SizedBox(width: 24),
         _buildSocialButton('assets/images/facebook.png', () {}),
       ],
@@ -206,5 +209,28 @@ class _SigninPageState extends State<SigninPage> {
         child: Image.asset(iconPath, height: 24, width: 24),
       ),
     );
+  }
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    try {
+      final result = await sl<GoogleSignInUseCase>().execute();
+
+      result.fold(
+        (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        },
+        (success) {
+          if (success) {
+            Navigator.pushReplacementNamed(context, '/main');
+          }
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 }

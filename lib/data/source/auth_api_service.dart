@@ -13,6 +13,7 @@ abstract class AuthApiService {
   Future<Either> signin(SigninReqParams signinReq);
   Future<Either> refreshToken();
   Future<Either> registerDeviceToken(String deviceToken);
+  Future<Either> googleSignIn(String token);
 }
 
 class AuthApiServiceImpl extends AuthApiService {
@@ -130,6 +131,21 @@ class AuthApiServiceImpl extends AuthApiService {
       return Left(response.data.toString());
     } on DioException catch (e) {
       return Left(e.response?.data?.toString() ?? "Lỗi đăng ký device token");
+    }
+  }
+
+  @override
+  Future<Either> googleSignIn(String token) async {
+    try {
+      var response = await sl<DioClient>().post(ApiUrls.googleSignIn,
+          data: {'token': token});
+
+      if (response.statusCode == 200) {
+        return Right(response);
+      }
+      return Left(response.data.toString());
+    } on DioException catch (e) {
+      return Left(e.response?.data?.toString() ?? "Lỗi đăng nhập Google");
     }
   }
 }

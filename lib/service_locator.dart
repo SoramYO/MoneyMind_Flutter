@@ -21,6 +21,7 @@ import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/domain/repository/wallet_category.dart';
 import 'package:my_project/domain/usecases/get_total_balance.dart';
+import 'package:my_project/domain/usecases/google_signin.dart';
 import 'package:my_project/domain/usecases/transaction_list.dart';
 import 'core/network/dio_client.dart';
 import 'data/repository/auth.dart';
@@ -50,6 +51,7 @@ void setupServiceLocator() {
       WalletCategoryApiServiceImpl());
   sl.registerSingleton<ChatApiService>(ChatApiServiceIml());
   sl.registerSingleton<MessageApiService>(MessageApiServiceIml());
+  
 
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
@@ -70,4 +72,5 @@ void setupServiceLocator() {
   sl.registerSingleton<getTotalUsedAmountUseCase>(getTotalUsedAmountUseCase());
   sl.registerSingleton<TransactionListUseCase>(TransactionListUseCase());
   sl.registerLazySingleton(() => RegisterDeviceTokenUseCase());
+  sl.registerLazySingleton(() => GoogleSignInUseCase());
 }
