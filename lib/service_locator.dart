@@ -3,6 +3,7 @@ import 'package:my_project/data/repository/goal_item.dart';
 import 'package:my_project/data/repository/monthly_goal.dart';
 import 'package:my_project/data/repository/chat.dart';
 import 'package:my_project/data/repository/message.dart';
+import 'package:my_project/data/repository/sheet_repository.dart';
 import 'package:my_project/data/repository/transaction.dart';
 import 'package:my_project/data/repository/wallet.dart';
 import 'package:my_project/data/repository/wallet_category.dart';
@@ -10,6 +11,7 @@ import 'package:my_project/data/source/goal_item_api_service.dart';
 import 'package:my_project/data/source/monthly_goal_api_service.dart';
 import 'package:my_project/data/source/chat_api_service.dart';
 import 'package:my_project/data/source/message_api_service.dart';
+import 'package:my_project/data/source/sheet_api_service.dart';
 import 'package:my_project/data/source/transaction_api_service.dart';
 import 'package:my_project/data/source/wallet_api_service.dart';
 import 'package:my_project/data/source/wallet_category_api_service.dart';
@@ -17,6 +19,7 @@ import 'package:my_project/domain/repository/goal_item.dart';
 import 'package:my_project/domain/repository/monthly_goal.dart';
 import 'package:my_project/domain/repository/chat.dart';
 import 'package:my_project/domain/repository/message.dart';
+import 'package:my_project/domain/repository/sheet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/domain/repository/wallet_category.dart';
@@ -51,6 +54,7 @@ void setupServiceLocator() {
       WalletCategoryApiServiceImpl());
   sl.registerSingleton<ChatApiService>(ChatApiServiceIml());
   sl.registerSingleton<MessageApiService>(MessageApiServiceIml());
+  sl.registerSingleton<SheetApiService>(SheetApiServiceImpl());
   
 
   // Repositories
@@ -63,6 +67,10 @@ void setupServiceLocator() {
       WalletCategoryRepositoryImpl());
   sl.registerSingleton<ChatRepository>(ChatRepositoryImpl());
   sl.registerSingleton<MessageRepository>(MessageRepositoryImpl());
+  sl.registerSingleton<SheetRepository>(SheetRepositoryImpl());
+
+
+
   // Usecases
   sl.registerSingleton<SignupUseCase>(SignupUseCase());
   sl.registerSingleton<IsLoggedInUseCase>(IsLoggedInUseCase());

@@ -25,73 +25,45 @@ class _UserProfileState extends State<UserProfile> {
   Future<void> _loadUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      fullName = prefs.getString('fullName') ?? '';
-      email = prefs.getString('email') ?? '';
+      fullName = prefs.getString('fullName') ?? 'Người dùng';
+      email = prefs.getString('email') ?? 'Chưa có email';
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
-        title: Text('Thông tin của tôi'),
-        backgroundColor: Colors.green, // Set the background color to green
+      backgroundColor: AppColors.grayLight.withOpacity(0.3),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        title: const Text(
+          'Thông tin của tôi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => MainTabView()),
+              MaterialPageRoute(builder: (context) => const MainTabView()),
               (Route<dynamic> route) => false,
-            ); // Navigate directly to HomePage
+            );
           },
         ),
       ),
-      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppColors.primary,
-                      child: Icon(Icons.person, size: 50, color: Colors.white),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      fullName,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      email,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+              _buildProfileHeader(),
+              const SizedBox(height: 16),
               _buildMenuSection(),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -99,11 +71,68 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  Widget _buildProfileHeader() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.white.withOpacity(0.2),
+            child: const Icon(
+              Icons.person_rounded,
+              size: 60,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            fullName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            email,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white.withOpacity(0.9),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMenuSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grayLight.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -122,11 +151,12 @@ class _UserProfileState extends State<UserProfile> {
             title: 'Bảo mật',
             onTap: () {},
           ),
+          const Divider(height: 24, color: Colors.grey),
           _buildMenuItem(
-            icon: Icons.logout,
+            icon: Icons.logout_rounded,
             title: 'Đăng xuất',
             onTap: _handleLogout,
-            textColor: Colors.red,
+            textColor: AppColors.error,
           ),
         ],
       ),
@@ -139,17 +169,43 @@ class _UserProfileState extends State<UserProfile> {
     required VoidCallback onTap,
     Color? textColor,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: textColor ?? AppColors.primary),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 16,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (textColor ?? AppColors.primary).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: textColor ?? AppColors.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: textColor ?? AppColors.text,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: textColor ?? AppColors.textLight,
+            ),
+          ],
         ),
       ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
     );
   }
 
@@ -157,36 +213,40 @@ class _UserProfileState extends State<UserProfile> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Xác nhận'),
         content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Hủy', style: TextStyle(color: AppColors.textLight)),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context); // Đóng dialog
-              
+
               // Hiển thị loading
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (context) => const Center(
-                  child: CircularProgressIndicator(),
+                builder: (context) => Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               );
-              
+
               // Thực hiện đăng xuất
               final result = await sl<AuthRepository>().logout();
-              
+
               if (mounted) {
                 Navigator.pop(context); // Đóng loading
-                
+
                 result.fold(
                   (error) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(error.toString())),
+                      SnackBar(
+                        content: Text(error.toString()),
+                        backgroundColor: AppColors.error,
+                      ),
                     );
                   },
                   (success) {
@@ -198,7 +258,7 @@ class _UserProfileState extends State<UserProfile> {
                 );
               }
             },
-            child: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+            child: const Text('Đăng xuất', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
