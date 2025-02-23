@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:my_project/data/models/activity.dart';
 import 'package:my_project/data/models/wallet_category.dart';
+import 'package:my_project/domain/repository/activitiy.dart';
 import 'package:my_project/domain/repository/wallet_category.dart';
+import 'package:my_project/presentation/wallet_category/widgets/add_activity_bottom_sheet.dart';
+import 'package:my_project/presentation/wallet_category/widgets/edit_activity_bottom_sheet.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:my_project/core/utils/hex_color.dart';
 
@@ -14,7 +18,8 @@ class WalletCategoryDetailView extends StatefulWidget {
   });
 
   @override
-  State<WalletCategoryDetailView> createState() => _WalletCategoryDetailViewState();
+  State<WalletCategoryDetailView> createState() =>
+      _WalletCategoryDetailViewState();
 }
 
 class _WalletCategoryDetailViewState extends State<WalletCategoryDetailView> {
@@ -35,8 +40,9 @@ class _WalletCategoryDetailViewState extends State<WalletCategoryDetailView> {
     });
 
     try {
-      final result = await sl<WalletCategoryRepository>().getWalletCategoryById(widget.categoryId);
-      
+      final result = await sl<WalletCategoryRepository>()
+          .getWalletCategoryById(widget.categoryId);
+
       result.fold(
         (error) => setState(() {
           _error = error;
@@ -126,7 +132,7 @@ class _WalletCategoryDetailViewState extends State<WalletCategoryDetailView> {
               spacing: 8,
               children: [
                 _buildDetailChip(
-                  '${_category!.activities.length} hoạt động',
+                  '${_category!.activities.length} activities',
                   Icons.list_alt_outlined,
                 ),
                 if (_category!.walletTypeName != null)
@@ -154,26 +160,134 @@ class _WalletCategoryDetailViewState extends State<WalletCategoryDetailView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Hoạt động',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Activities',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final result = await showModalBottomSheet<String>(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(16)),
+                  ),
+                  builder: (context) => AddActivityBottomSheet(
+                    categoryId: widget.categoryId,
+                  ),
+                );
+
+                if (result != null && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(result)),
+                  );
+                  _loadCategory();
+                }
+              },
+              child: const Text('Add'),
+            )
+          ],
         ),
         const SizedBox(height: 12),
-        ..._category!.activities.map((activity) => Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            title: Text(activity.name),
-            subtitle: Text(activity.description),
-            trailing: Text(
-              DateFormat('dd/MM/yyyy').format(activity.createAt),
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-        )),
+        ..._category!.activities.map((activity) => Dismissible(
+              key: Key(activity.id), // Sử dụng ID làm key duy nhất
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              confirmDismiss: (direction) async {
+                return await _showDeleteConfirmationDialog(activity.id);
+              },
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  title: Text(activity.name),
+                  subtitle: Text(activity.description),
+                  trailing: Text(
+                    DateFormat('dd/MM/yyyy').format(activity.createdAt),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  onTap: () async {
+                    print('Type of activity: ${activity.runtimeType}');
+                    print(
+                        'Value of activity: $activity'); // In giá trị chi tiết
+                    final updated = await showModalBottomSheet<bool>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => EditActivityBottomSheet(
+                          activity: activity, categoryId: widget.categoryId),
+                    );
+
+                    if (updated == true) {
+                      _loadCategory(); // Reload danh mục nếu update thành công
+                    }
+                  },
+                ),
+              ),
+            )),
       ],
     );
   }
-} 
+
+  /// Hộp thoại xác nhận xóa
+  Future<bool> _showDeleteConfirmationDialog(String activityId) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Activity'),
+            content: const Text('Do you want to delete this activity?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context, true);
+                  await _deleteActivity(activityId);
+                },
+                child: const Text('Yes', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  /// Gọi API xóa Activity
+  Future<void> _deleteActivity(String activityId) async {
+    try {
+      final result = await sl<ActivityRepository>().deleteActivity(activityId);
+      result.fold(
+        (error) => ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete: $error')),
+        ),
+        (data) {
+          if (data) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Activity deleted successfully')),
+            );
+            _loadCategory(); // Load lại danh mục sau khi xóa thành công
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to delete activity')),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+}

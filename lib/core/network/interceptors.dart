@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:my_project/core/network/dio_client.dart';
 import 'package:my_project/data/source/auth_api_service.dart';
-import 'package:my_project/data/source/auth_local_service.dart';
 import 'package:my_project/domain/repository/auth.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
