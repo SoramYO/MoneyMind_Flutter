@@ -359,7 +359,7 @@ class _HomePageState extends State<HomePage> {
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                        const SizedBox(width: 140),
+                                        const SizedBox(width: 70),
                                         Text(
                                           '${NumberFormat('#.##').format(totalUsedAmount * 100 / totalAmount)}%',
                                           style: TextStyle(
@@ -483,15 +483,27 @@ class _HomePageState extends State<HomePage> {
             ),
 
             const SizedBox(height: 10), // Khoảng cách giữa 2 danh sách
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
-              child: Text(
-                "Transactions",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text,
-                ),
+            Container(
+              height: media.width * 0.2,
+              width: media.width * 1,
+              decoration: BoxDecoration(
+                color: AppColors.grayLight,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Transactions",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text,
+                    ),
+                  ),
+                ],
               ),
             ),
             // Danh sách cuộn dọc

@@ -1,5 +1,3 @@
-import 'package:my_project/data/models/transaction.dart';
-
 class ActivityDb {
   final String id;
   final String name;

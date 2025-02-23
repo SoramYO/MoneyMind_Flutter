@@ -1,37 +1,4 @@
-class Activities {
-  final String id;
-  final String name;
-  final String description;
-  final DateTime createAt;
-
-  Activities({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.createAt,
-  });
-
-  factory Activities.fromJson(Map<String, dynamic> json) {
-    return Activities(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      createAt: DateTime.parse(json['createdAt'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'createdAt': createAt.toIso8601String(),
-    };
-  }
-}
-
-
-
+import 'package:my_project/data/models/activity.dart';
 
 class WalletCategory {
   final String id;
@@ -45,8 +12,7 @@ class WalletCategory {
   final String? walletTypeId;
   final String? walletTypeName;
   final String? walletTypeDescription;
-  final List<Activities> activities;
-
+  final List<ActivityDb> activities;
 
   WalletCategory({
     required this.id,
@@ -77,7 +43,7 @@ class WalletCategory {
       walletTypeName: json['walletTypeName'] as String?,
       walletTypeDescription: json['walletTypeDescription'] as String?,
       activities: (json['activities'] as List)
-          .map((e) => Activities.fromJson(e as Map<String, dynamic>))
+          .map((e) => ActivityDb.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -112,7 +78,9 @@ class WalletCategory {
       walletTypeId: map['walletTypeId'],
       walletTypeName: map['walletTypeName'],
       walletTypeDescription: map['walletTypeDescription'],
-      activities: map['activities'].map<Activities>((json) => Activities.fromJson(json)).toList(),
+      activities: map['activities']
+          .map<ActivityDb>((json) => ActivityDb.fromJson(json))
+          .toList(),
     );
   }
 }

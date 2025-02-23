@@ -206,7 +206,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
         backgroundColor: AppColors.primary,
         elevation: 0,
         title: const Text(
-          'Danh mục ví',
+          'Wallet category',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
