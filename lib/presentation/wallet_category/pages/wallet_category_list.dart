@@ -119,6 +119,61 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     }
   }
 
+  Future<void> _createDefaultWalletCategories() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+    final result =
+        await sl<WalletCategoryRepository>().createWalletCategoryDefault();
+    result.fold(
+      (errorMessage) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      },
+      (data) {
+        setState(() {
+          walletCategories = data;
+          isLoading = false;
+        });
+      },
+    );
+  }
+
+// dart
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.folder_open, size: 64, color: Colors.grey),
+          const SizedBox(height: 20),
+          const Text(
+            'Chưa có danh mục ví nào',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.add, size: 28),
+            label: const Text(
+              "Tạo ví mặc định",
+              style: TextStyle(fontSize: 18),
+            ),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              minimumSize: const Size(200, 60),
+            ),
+            onPressed: _createDefaultWalletCategories,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -127,6 +182,23 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
 
     if (error != null) {
       return Center(child: Text(error!));
+    }
+
+    if (walletCategories.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          elevation: 10,
+          title: const Text(
+            'Danh mục ví',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        body: _buildEmptyState(),
+      );
     }
 
     return Scaffold(

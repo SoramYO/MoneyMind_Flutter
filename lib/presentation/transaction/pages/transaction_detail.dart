@@ -117,7 +117,7 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                isIncome ? Icons.arrow_upward : Icons.arrow_downward,
                 color: isIncome ? AppColors.success : AppColors.error,
               ),
               const SizedBox(width: 8),
