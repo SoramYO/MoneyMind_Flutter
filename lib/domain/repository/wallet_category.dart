@@ -8,4 +8,5 @@ abstract class WalletCategoryRepository {
   Future<Either<String, List<WalletCategory>>> getWalletCategoryByUserId(
     String userId, String? walletTypeId, int pageIndex , int pageSize );
   Future<Either<String, WalletCategory>> getWalletCategoryById(String categoryId);
+  Future<Either<String, List<WalletCategory>>> createWalletCategoryDefault();
 } 

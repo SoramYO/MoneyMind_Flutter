@@ -31,4 +31,16 @@ class WalletCategoryRepositoryImpl implements WalletCategoryRepository {
       return Left(e.toString());
     }
   }
+  @override
+  Future<Either<String, List<WalletCategory>>> createWalletCategoryDefault() async {
+    try {
+      final result = await sl<WalletCategoryApiService>().createWalletCategoryDefault();
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

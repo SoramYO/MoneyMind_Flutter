@@ -33,8 +33,11 @@ class _TransactionListViewState extends State<TransactionListView> {
   DateTime? fromDate;
   DateTime? toDate;
   bool hasSheetId = false;
-  double offsetX = 0;
-  double offsetY = 0;
+  double currentLeft = 0;
+  double currentTop = 0;
+  double initialX = 0;
+  double initialY = 0;
+  bool isDragging = false;
 
   // Group transactions by date
   Map<String, List<Transaction>> get groupedTransactions {
@@ -67,6 +70,9 @@ class _TransactionListViewState extends State<TransactionListView> {
   @override
   void initState() {
     super.initState();
+    currentLeft = 324;
+    currentTop = 575;
+
     _loadTransactions();
     _checkSheetStatus();
   }
@@ -236,7 +242,7 @@ class _TransactionListViewState extends State<TransactionListView> {
                           sheetIdController.text,
                           widget.userId,
                         );
-                        
+
                         result.fold(
                           (error) => ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(error)),
@@ -266,7 +272,8 @@ class _TransactionListViewState extends State<TransactionListView> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Đồng bộ ngay?'),
-        content: const Text('Bạn có muốn đồng bộ dữ liệu từ Google Sheet ngay bây giờ?'),
+        content: const Text(
+            'Bạn có muốn đồng bộ dữ liệu từ Google Sheet ngay bây giờ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -281,10 +288,12 @@ class _TransactionListViewState extends State<TransactionListView> {
     );
 
     if (confirm == true) {
-      final hasSheetId = await sl<SheetRepository>().checkSheetExists(widget.userId);
+      final hasSheetId =
+          await sl<SheetRepository>().checkSheetExists(widget.userId);
       if (!hasSheetId) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vui lòng thêm Sheet ID trước khi đồng bộ')),
+          const SnackBar(
+              content: Text('Vui lòng thêm Sheet ID trước khi đồng bộ')),
         );
         return;
       }
@@ -344,8 +353,7 @@ class _TransactionListViewState extends State<TransactionListView> {
                           : _buildTransactionListContent(),
             ),
           ),
-          if (hasSheetId && transactions.isNotEmpty)
-            _buildFloatingSyncButton(),
+          if (hasSheetId && transactions.isNotEmpty) _buildFloatingSyncButton(),
         ],
       ),
     );
@@ -356,7 +364,8 @@ class _TransactionListViewState extends State<TransactionListView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.insert_drive_file_outlined, size: 64, color: Colors.grey),
+          const Icon(Icons.insert_drive_file_outlined,
+              size: 64, color: Colors.grey),
           const SizedBox(height: 20),
           const Text(
             'Chưa có giao dịch nào',
@@ -379,7 +388,8 @@ class _TransactionListViewState extends State<TransactionListView> {
     );
   }
 
-  Widget _buildActionButton(String text, IconData icon, VoidCallback onPressed) {
+  Widget _buildActionButton(
+      String text, IconData icon, VoidCallback onPressed) {
     return SizedBox(
       width: 250,
       child: ElevatedButton.icon(
@@ -426,15 +436,15 @@ class _TransactionListViewState extends State<TransactionListView> {
           final groupIndex = index ~/ 2;
           final date = groupedTransactions.keys.elementAt(groupIndex);
           final transactions = groupedTransactions[date]!;
-          
+
           return Column(
             children: [
               _buildDateHeader(date),
               ...transactions.map((transaction) => TransactionCard(
-                transaction: transaction,
-                onTap: () => _handleTransactionTap(transaction),
-                onDelete: () => _deleteTransaction(transaction.id),
-              )),
+                    transaction: transaction,
+                    onTap: () => _handleTransactionTap(transaction),
+                    onDelete: () => _deleteTransaction(transaction.id),
+                  )),
             ],
           );
         }
@@ -460,13 +470,36 @@ class _TransactionListViewState extends State<TransactionListView> {
 
   Widget _buildFloatingSyncButton() {
     return Positioned(
-      right: offsetX == 0 ? 20 : offsetX,
-      bottom: offsetY == 0 ? 20 : offsetY,
+      left: currentLeft,
+      top: currentTop,
       child: GestureDetector(
-        onPanUpdate: (details) {
+        onPanStart: (details) {
           setState(() {
-            offsetX = details.globalPosition.dx - 28;
-            offsetY = details.globalPosition.dy - 28;
+            isDragging = true;
+            initialX = details.globalPosition.dx - currentLeft;
+            initialY = details.globalPosition.dy - currentTop;
+          });
+        },
+        onPanUpdate: (details) {
+          if (isDragging) {
+            setState(() {
+              final size = MediaQuery.of(context).size;
+              currentLeft = details.globalPosition.dx - initialX;
+              currentTop = details.globalPosition.dy - initialY;
+
+              print(currentLeft);
+              print(currentTop);
+
+              // Giới hạn vị trí trong màn hình
+              currentLeft = currentLeft.clamp(0, size.width - 56);
+              currentTop = currentTop.clamp(
+                  0, size.height - 56 - MediaQuery.of(context).padding.bottom);
+            });
+          }
+        },
+        onPanEnd: (details) {
+          setState(() {
+            isDragging = false;
           });
         },
         child: Container(

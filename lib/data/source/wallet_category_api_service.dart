@@ -10,6 +10,8 @@ abstract class WalletCategoryApiService {
     String userId, String? walletTypeId, int pageIndex , int pageSize );
 
   Future<Either<String, WalletCategory>> getWalletCategoryById(String categoryId);
+
+  Future<Either<String, List<WalletCategory>>> createWalletCategoryDefault();
 }
 
 class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
@@ -43,6 +45,22 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
         final data = response.data['data'];
         final walletCategory = WalletCategory.fromJson(data);
         return Right(walletCategory);
+      }
+      return Left(response.data['message'] ?? 'Lỗi không xác định');
+    } on DioException catch (e) {
+      return Future.value(Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối'));
+    }
+  }
+  @override
+  Future<Either<String, List<WalletCategory>>> createWalletCategoryDefault() async {
+    try {
+      final url = '${ApiUrls.walletCategory}/create-default';
+      final response = await sl<DioClient>().post(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'];
+        final walletCategories = data.map((json) => WalletCategory.fromJson(json)).toList();
+        return Right(walletCategories);
       }
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
