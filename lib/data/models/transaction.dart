@@ -40,6 +40,7 @@ class Transaction {
   final DateTime lastUpdateAt;
   final String userId;
   final String? walletId;
+  final String? activyId;
   final List<Tag> tags;
 
   Transaction({
@@ -52,10 +53,11 @@ class Transaction {
     required this.lastUpdateAt,
     required this.userId,
     this.walletId,
+    this.activyId,
     required this.tags,
   });
 
-  factory Transaction.fromJson(Map<String, dynamic> json) {
+  factory Transaction.fromJson(Map<String, dynamic> json) { 
     return Transaction(
       id: json['id'],
       recipientName: json['recipientName'],
@@ -66,6 +68,7 @@ class Transaction {
       lastUpdateAt: DateTime.parse(json['lastUpdateAt']),
       userId: json['userId'],
       walletId: json['walletId'],
+      activyId: json['activyId'],
       tags: (json['tags'] as List).map((tag) => Tag.fromJson(tag)).toList(),
     );
   }
@@ -81,11 +84,12 @@ class Transaction {
       'lastUpdateAt': lastUpdateAt.toIso8601String(),
       'userId': userId,
       'walletId': walletId,
+      'activyId': activyId,
       'tags': tags.map((tag) => tag.toJson()).toList(),
     };
   }
 
-  factory Transaction.fromMap(Map<String, dynamic> map) {
+  factory Transaction.fromMap(Map<String, dynamic> map) { 
     return Transaction(
       id: map['id'],
       recipientName: map['recipientName'],
@@ -96,7 +100,33 @@ class Transaction {
       lastUpdateAt: DateTime.parse(map['lastUpdateAt']),
       userId: map['userId'],
       walletId: map['walletId'],
+      activyId: map['activyId'],
       tags: (map['tags'] as List).map((tag) => Tag.fromJson(tag)).toList(),
+    );
+  }
+
+  Transaction copyWith({
+    String? id,
+    String? recipientName,
+    double? amount,
+    String? description,
+    DateTime? transactionDate,
+    DateTime? lastUpdateAt,
+    String? walletId,
+    String? activyId,
+  }) {
+    return Transaction(
+      id: id ?? this.id,
+      recipientName: recipientName ?? this.recipientName,
+      amount: amount ?? this.amount,
+      description: description ?? this.description,
+      transactionDate: transactionDate ?? this.transactionDate,
+      createAt: this.createAt,
+      lastUpdateAt: lastUpdateAt ?? this.lastUpdateAt,
+      userId: this.userId,
+      walletId: walletId ?? this.walletId,
+      activyId: activyId ?? this.activyId,
+      tags: this.tags,
     );
   }
 } 

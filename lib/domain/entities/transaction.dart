@@ -9,7 +9,9 @@ class TransactionEntity {
   final DateTime createAt;
   final DateTime lastUpdateAt;
   final String userId;
+  final String? activyId;
   final String? walletId;
+
   final List<Tag> tags;
 
   TransactionEntity({
@@ -21,7 +23,9 @@ class TransactionEntity {
     required this.createAt,
     required this.lastUpdateAt,
     required this.userId,
+    required this.activyId,
     this.walletId,
+
     required this.tags,
   });
 }
