@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_edit_add_view.dart';
 import 'package:my_project/presentation/wallet_category/pages/wallet_category_list.dart';
 import '../home/pages/home.dart';
 import '../transaction/pages/transaction_list_view.dart';
@@ -35,11 +36,18 @@ class _MainTabViewState extends State<MainTabView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: currentTabView,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+       floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TransactionFormScreen(),
       ),
+    );
+  },
+  backgroundColor: AppColors.primary,
+  child: const Icon(Icons.add, color: Colors.white),
+),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
