@@ -3,6 +3,7 @@ import 'package:my_project/core/constants/app_colors.dart';
 import 'package:my_project/domain/repository/sheet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/data/models/transaction.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_edit_add_view.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:intl/intl.dart';
 import 'package:my_project/presentation/transaction/widgets/filter_bottom_sheet.dart';
@@ -334,6 +335,17 @@ class _TransactionListViewState extends State<TransactionListView> {
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.white),
             onPressed: _showFilterDialog,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TransactionFormScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),

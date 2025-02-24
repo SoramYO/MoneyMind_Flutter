@@ -214,8 +214,12 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_list, color: Colors.white),
             onPressed: _showFilterSheet,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.white),
+            onPressed: () {},
           ),
         ],
       ),

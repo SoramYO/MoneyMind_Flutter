@@ -36,18 +36,18 @@ class _MainTabViewState extends State<MainTabView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: currentTabView,
-       floatingActionButton: FloatingActionButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const TransactionFormScreen(),
-      ),
-    );
-  },
-  backgroundColor: AppColors.primary,
-  child: const Icon(Icons.add, color: Colors.white),
-),
+//        floatingActionButton: FloatingActionButton(
+//   onPressed: () {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => const TransactionFormScreen(),
+//       ),
+//     );
+//   },
+//   backgroundColor: AppColors.primary,
+//   child: const Icon(Icons.add, color: Colors.white),
+// ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -109,7 +109,6 @@ class _MainTabViewState extends State<MainTabView> {
                     color: selectTab == 1 ? AppColors.primary : Colors.grey,
                   ),
                 ),
-                const SizedBox(width: 50),
                 IconButton(
                   onPressed: () async {
                     if (userId != null) {
@@ -127,20 +126,50 @@ class _MainTabViewState extends State<MainTabView> {
                     }
                   },
                   icon: Icon(
-                    Icons.pie_chart,
+                    Icons.savings_sharp,
                     color: selectTab == 2 ? AppColors.primary : Colors.grey,
                   ),
                 ),
                 IconButton(
-                  onPressed: () {
-                    setState(() {
-                      selectTab = 3;
-                      currentTabView = const UserProfile();
-                    });
+                  onPressed: () async {
+                    if (userId != null) {
+                      setState(() {
+                        selectTab = 3;
+                        currentTabView =
+                            WalletCategoryListView(userId: userId!);
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Không tìm thấy thông tin người dùng')),
+                      );
+                    }
                   },
                   icon: Icon(
-                    Icons.person,
+                    Icons.wallet,
                     color: selectTab == 3 ? AppColors.primary : Colors.grey,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () async {
+                    if (userId != null) {
+                      setState(() {
+                        selectTab = 4;
+                        currentTabView =
+                            WalletCategoryListView(userId: userId!);
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Không tìm thấy thông tin người dùng')),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.pie_chart_rounded,
+                    color: selectTab == 4 ? AppColors.primary : Colors.grey,
                   ),
                 ),
               ],
