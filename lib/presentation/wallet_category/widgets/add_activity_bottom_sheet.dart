@@ -106,6 +106,7 @@ class _AddActivityBottomSheetState extends State<AddActivityBottomSheet> {
               border: OutlineInputBorder(),
               errorText: _descriptionError,
             ),
+            maxLines: 3,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
