@@ -4,6 +4,7 @@ import 'package:my_project/domain/repository/sheet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/data/models/transaction.dart';
 import 'package:my_project/presentation/transaction/pages/transaction_edit_add_view.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_update.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:intl/intl.dart';
 import 'package:my_project/presentation/transaction/widgets/filter_bottom_sheet.dart';
@@ -578,6 +579,15 @@ class TransactionCard extends StatelessWidget {
     );
   }
 
+  void _navigateToUpdateTransaction(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionUpdateScreen(transaction: transaction),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tag = transaction.tags.isNotEmpty ? transaction.tags.first : null;
@@ -659,16 +669,22 @@ class TransactionCard extends StatelessWidget {
                 fontSize: 16,
               ),
             ),
-            if (onDelete != null) ...[
-              const SizedBox(width: 8),
-              IconButton(
-                icon: Icon(
-                  Icons.delete_rounded,
-                  color: AppColors.error.withOpacity(0.8),
-                ),
-                onPressed: () => _showDeleteConfirmationDialog(context),
+            const SizedBox(width: 16),
+            IconButton(
+              icon: Icon(
+                Icons.edit,
+                color: AppColors.primary.withOpacity(0.8),
               ),
-            ],
+              onPressed: () => _navigateToUpdateTransaction(context),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: Icon(
+                Icons.delete_rounded,
+                color: AppColors.error.withOpacity(0.8),
+              ),
+              onPressed: () => _showDeleteConfirmationDialog(context),
+            ),
           ],
         ),
         onTap: onTap,
