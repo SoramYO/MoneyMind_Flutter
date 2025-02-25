@@ -346,7 +346,11 @@ class _HomePageState extends State<HomePage> {
                                         Text(
                                           '${NumberFormat('#,###').format(totalUsedAmount)}đ / ',
                                           style: TextStyle(
-                                            color: AppColors.navy,
+                                            color:
+                                                totalUsedAmount / totalAmount <
+                                                        1
+                                                    ? AppColors.navy
+                                                    : AppColors.error,
                                             fontSize: 20,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -359,11 +363,15 @@ class _HomePageState extends State<HomePage> {
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                        const SizedBox(width: 70),
+                                        const SizedBox(width: 20),
                                         Text(
-                                          '${NumberFormat('#.##').format(totalUsedAmount * 100 / totalAmount)}%',
+                                          '${NumberFormat('#.##').format(totalUsedAmount / totalAmount > 1 ? 100 : (totalUsedAmount * 100 / totalAmount))}%',
                                           style: TextStyle(
-                                            color: AppColors.textLight,
+                                            color:
+                                                totalUsedAmount / totalAmount <
+                                                        1
+                                                    ? AppColors.textLight
+                                                    : AppColors.error,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -381,7 +389,10 @@ class _HomePageState extends State<HomePage> {
                                   height: 10,
                                   child: CustomPaint(
                                     painter: CustomLinePainter(
-                                      progress: totalUsedAmount / totalAmount,
+                                      progress:
+                                          totalUsedAmount / totalAmount > 1
+                                              ? 1
+                                              : totalUsedAmount / totalAmount,
                                       width: 6,
                                       blurWidth: 4,
                                       status: totalUsedAmount <= totalAmount,
@@ -427,7 +438,7 @@ class _HomePageState extends State<HomePage> {
 
             // Container Wallet
             Container(
-              height: media.width * 0.2,
+              height: media.width * 0.1,
               width: media.width * 1,
               decoration: BoxDecoration(
                 color: AppColors.grayLight,
@@ -451,7 +462,7 @@ class _HomePageState extends State<HomePage> {
             ),
             // Danh sách cuộn ngang
             SizedBox(
-              height: 100, // Chiều cao cố định để tránh lỗi
+              height: 120, // Tăng chiều cao để hiển thị đầy đủ nội dung
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: wallets.length,
@@ -461,21 +472,63 @@ class _HomePageState extends State<HomePage> {
                   final balance = wallets.elementAt(index).balance;
                   final currency = wallets.elementAt(index).currency;
                   return Container(
-                    width: 150, // Định kích thước item ngang
-                    margin: const EdgeInsets.only(left: 10, right: 10),
-                    padding: const EdgeInsets.all(2),
+                    width: 220,
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color:
-                          index % 2 == 0 ? AppColors.orange : AppColors.brown,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Last Updated:\n$date\nBalance:\n${NumberFormat('#,###').format(balance)} $currency',
-                        textAlign: TextAlign.left,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 16),
+                      // Sử dụng gradient đa dạng theo index
+                      gradient: LinearGradient(
+                        colors: index % 2 == 0
+                            ? [Colors.indigo, Colors.blue]
+                            : [Colors.deepOrange, Colors.orange],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Balance:",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Text(
+                          '${NumberFormat('#,###').format(balance)} $currency',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Last Updated:",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Text(
+                          date,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -484,7 +537,7 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 10), // Khoảng cách giữa 2 danh sách
             Container(
-              height: media.width * 0.2,
+              height: media.width * 0.1,
               width: media.width * 1,
               decoration: BoxDecoration(
                 color: AppColors.grayLight,

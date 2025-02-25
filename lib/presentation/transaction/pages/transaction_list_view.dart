@@ -555,8 +555,7 @@ class TransactionCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            TransactionUpdateScreen(transaction: transaction),
+        builder: (context) => TransactionUpdateScreen(transaction: transaction),
       ),
     );
   }
@@ -570,7 +569,10 @@ class TransactionCard extends StatelessWidget {
 
     return Dismissible(
       key: Key(transaction.id.toString()), // Đảm bảo transaction có id duy nhất
-      direction: DismissDirection.horizontal,
+      direction: onDelete == null
+          ? DismissDirection.startToEnd
+          : DismissDirection.horizontal,
+
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
           // Swipe right -> Chuyển sang chỉnh sửa
@@ -588,16 +590,14 @@ class TransactionCard extends StatelessWidget {
                     "Bạn có chắc chắn muốn xóa giao dịch này không?"),
                 actions: [
                   TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pop(false),
-                    child: const Text("Hủy",
-                        style: TextStyle(color: Colors.grey)),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child:
+                        const Text("Hủy", style: TextStyle(color: Colors.grey)),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pop(true),
-                    child: const Text("Xóa",
-                        style: TextStyle(color: Colors.red)),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child:
+                        const Text("Xóa", style: TextStyle(color: Colors.red)),
                   ),
                 ],
               );
@@ -618,12 +618,14 @@ class TransactionCard extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: const Icon(Icons.edit, color: Colors.white),
       ),
-      secondaryBackground: onDelete == null ? null : Container(
-        color: Colors.red,
-        padding: const EdgeInsets.only(right: 20),
-        alignment: Alignment.centerRight,
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
+      secondaryBackground: onDelete == null
+          ? null
+          : Container(
+              color: Colors.red,
+              padding: const EdgeInsets.only(right: 20),
+              alignment: Alignment.centerRight,
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
@@ -682,7 +684,7 @@ class TransactionCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           trailing: Text(
-            '-${transaction.amount.toString()}',
+            '-${transaction.amount.toString()}VND',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
