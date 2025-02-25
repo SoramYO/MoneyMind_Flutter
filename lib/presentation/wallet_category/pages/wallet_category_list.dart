@@ -100,26 +100,16 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     );
 
     if (updatedCategory != null) {
-      setState(() => isLoading = true);
-      final result = await sl<WalletCategoryRepository>()
-          .updateWalletCategory(updatedCategory);
+      setState(() {
+        walletCategories = walletCategories.map((c) => 
+          c.id == updatedCategory.id ? updatedCategory : c).toList();
+      });
       
-      result.fold(
-        (error) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(error)));
-          setState(() => isLoading = false);
-        },
-        (updated) {
-          setState(() {
-            walletCategories = walletCategories.map((c) => 
-              c.id == updated.id ? updated : c).toList();
-            isLoading = false;
-          });
-        },
-      );
+      // Optional: Reload from server to ensure data consistency
+      _loadWalletCategories();
     }
   }
+
 
   // Nhóm categories theo walletTypeName
   Map<String, List<WalletCategory>> get groupedCategories {

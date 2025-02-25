@@ -262,8 +262,8 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
         walletTypeId: _selectedWalletTypeId!,
         userId: widget.userId,
         activities: widget.category?.activities ?? [],
-        walletTypeName: null,
-        createAt: DateTime.now(),
+        walletTypeName: widget.category?.walletTypeName,
+        createAt: widget.category?.createAt ?? DateTime.now(),
       );
 
       final result = widget.category == null

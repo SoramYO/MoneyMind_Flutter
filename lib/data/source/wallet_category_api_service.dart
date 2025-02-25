@@ -108,17 +108,32 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
       WalletCategory walletCategory) async {
     try {
       final url = "${ApiUrls.walletCategory}/${walletCategory.id}";
-      final response =
-          await sl<DioClient>().put(url, data: walletCategory.toJson());
+      
+      // Only send fields that can be updated according to backend
+      final updateData = {
+        'name': walletCategory.name,
+        'description': walletCategory.description,
+        'iconPath': walletCategory.iconPath,
+        'color': walletCategory.color,
+        'walletTypeId': walletCategory.walletTypeId,
+      };
+
+      print('Update URL: $url');
+      print('Update Data: $updateData');
+
+      final response = await sl<DioClient>().put(url, data: updateData);
+      
       if (response.statusCode == 200) {
         final data = response.data['data'];
-        final walletCategory = WalletCategory.fromJson(data);
-        return Right(walletCategory);
+        final updatedCategory = WalletCategory.fromJson(data);
+        return Right(updatedCategory);
       }
+      
+      print('Update Error: ${response.data}');
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
-      return Future.value(
-          Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối'));
+      print('DioException: ${e.response?.data}');
+      return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
     }
   }
 }
