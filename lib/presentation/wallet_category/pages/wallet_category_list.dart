@@ -6,6 +6,8 @@ import 'package:my_project/service_locator.dart';
 import 'package:my_project/core/utils/hex_color.dart';
 import 'package:my_project/presentation/wallet_category/pages/wallet_category_detail.dart';
 import 'package:my_project/presentation/wallet_category/widgets/filter_bottom_sheet.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:my_project/presentation/wallet_category/widgets/wallet_category_form_dialog.dart';
 
 class WalletCategoryListView extends StatefulWidget {
   final String userId;
@@ -26,7 +28,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
   bool isLoading = false;
   String? error;
   int currentPage = 1;
-  int pageSize = 10;
+  int pageSize = 20;
   String? _currentWalletTypeId;
 
   @override
@@ -43,10 +45,11 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     });
 
     try {
+      // Add the actual data loading code here
       final result =
           await sl<WalletCategoryRepository>().getWalletCategoryByUserId(
         widget.userId,
-        widget.walletTypeId,
+        _currentWalletTypeId,
         currentPage,
         pageSize,
       );
@@ -72,6 +75,51 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
       });
     }
   }
+  Future<void> _showCreateDialog() async {
+    final newCategory = await showDialog<WalletCategory>(
+      context: context,
+      builder: (context) => WalletCategoryFormDialog(
+        userId: widget.userId,
+      ),
+    );
+
+    if (newCategory != null) {
+      setState(() {
+        walletCategories = [...walletCategories, newCategory];
+      });
+      _loadWalletCategories(); // Reload the list to get updated data
+    }
+  }
+  Future<void> _showEditDialog(WalletCategory category) async {
+    final updatedCategory = await showDialog<WalletCategory>(
+      context: context,
+      builder: (context) => WalletCategoryFormDialog(
+        category: category,
+        userId: widget.userId,
+      ),
+    );
+
+    if (updatedCategory != null) {
+      setState(() => isLoading = true);
+      final result = await sl<WalletCategoryRepository>()
+          .updateWalletCategory(updatedCategory);
+      
+      result.fold(
+        (error) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(error)));
+          setState(() => isLoading = false);
+        },
+        (updated) {
+          setState(() {
+            walletCategories = walletCategories.map((c) => 
+              c.id == updated.id ? updated : c).toList();
+            isLoading = false;
+          });
+        },
+      );
+    }
+  }
 
   // Nhóm categories theo walletTypeName
   Map<String, List<WalletCategory>> get groupedCategories {
@@ -88,8 +136,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     for (var categories in groups.values) {
       categories.sort((a, b) => a.name.compareTo(b.name));
     }
-
-    return groups;
+    return groups; // Add return statement
   }
 
   void _handleCategoryTap(WalletCategory category) {
@@ -110,13 +157,6 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
         },
       ),
     );
-
-    if (result != null) {
-      setState(() {
-        _currentWalletTypeId = result['walletTypeId'];
-      });
-      _loadWalletCategories();
-    }
   }
 
   Future<void> _createDefaultWalletCategories() async {
@@ -144,7 +184,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     );
   }
 
-// dart
+  // dart
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -174,6 +214,14 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
     );
   }
 
+  void _navigateToCreatePage() {
+    _showCreateDialog();
+  }
+
+  void _navigateToUpdatePage(WalletCategory walletCategory) {
+    _showEditDialog(walletCategory);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -200,7 +248,6 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
         body: _buildEmptyState(),
       );
     }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
@@ -219,7 +266,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
           ),
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () {},
+            onPressed: _navigateToCreatePage,
           ),
         ],
       ),
@@ -243,10 +290,30 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
                       ),
                     ),
                   ),
-                  ...entry.value.map((category) => WalletCategoryCard(
+                  ...entry.value.map(
+                    (category) => Dismissible(
+                      key: Key(category.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20.0),
+                        color: Colors.blue,
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
+                      ),
+                      confirmDismiss: (direction) async {
+                        _navigateToUpdatePage(category);
+                        return false; // Không xóa card sau khi vuốt
+                      },
+                      child: WalletCategoryCard(
                         category: category,
                         onTap: () => _handleCategoryTap(category),
-                      )),
+                        onLongPress: () => _showEditDialog(category),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -261,13 +328,13 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
 class WalletCategoryCard extends StatelessWidget {
   final WalletCategory category;
   final VoidCallback onTap;
-
+  final VoidCallback onLongPress; // Add this line
   const WalletCategoryCard({
     super.key,
     required this.category,
     required this.onTap,
+    required this.onLongPress, // Add this line
   });
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -278,6 +345,7 @@ class WalletCategoryCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
+        onLongPress: onLongPress, // Add this line
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -291,12 +359,7 @@ class WalletCategoryCard extends StatelessWidget {
                       : Colors.grey[200]),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.category_outlined,
-                  color: category.color != null
-                      ? HexColor(category.color!)
-                      : Colors.grey,
-                ),
+                child: _buildCategoryIcon(),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -343,6 +406,48 @@ class WalletCategoryCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildCategoryIcon() {
+    // Check if the iconPath is a network URL.
+    if (category.iconPath != null &&
+        (category.iconPath!.startsWith('http://') ||
+            category.iconPath!.startsWith('https://'))) {
+      return CachedNetworkImage(
+        imageUrl: category.iconPath!,
+        color: category.color != null ? HexColor(category.color!) : Colors.grey,
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        errorWidget: (context, url, error) {
+          print("Error loading image: $error");
+          return Icon(
+            Icons.category_outlined,
+            color: category.color != null
+                ? HexColor(category.color!)
+                : Colors.grey,
+          );
+        },
+        width: 48,
+        height: 48,
+        fit: BoxFit.contain,
+      );
+    } else if (category.iconPath != null) {
+      // Assume it's a local asset.
+      return Image.asset(
+        category.iconPath!,
+        color: category.color != null ? HexColor(category.color!) : Colors.grey,
+        width: 48,
+        height: 48,
+        fit: BoxFit.contain,
+      );
+    } else {
+      // Fallback icon if iconPath is null.
+      return Icon(
+        Icons.category_outlined,
+        color: category.color != null ? HexColor(category.color!) : Colors.grey,
+      );
+    }
   }
 
   Widget _buildInfoChip(String text, IconData icon) {

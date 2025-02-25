@@ -1,5 +1,5 @@
 class ApiUrls {
-  static const baseURL = 'http://localhost:8080/api/';
+  static const baseURL = 'http://10.0.2.2:5079/api/';
   static const register = '${baseURL}Authentications/Register';
   static const userProfile = '${baseURL}user/profile';
   static const login = '${baseURL}Authentications/Login';
@@ -16,5 +16,6 @@ class ApiUrls {
   static const addSheet = '${baseURL}Sheet/add';
   static const syncSheet = '${baseURL}GoogleSheetSync/sync';
   static const checkSheetExists = '${baseURL}Sheet/isExists';
-  static const chat = 'https://localhost:5079/chathub';
+  static const walletType = '${baseURL}WalletType';
+  static const chat = 'https://10.0.2.2:5079/chathub';
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_project/data/models/activity.dart';
 import 'package:my_project/data/models/wallet_category.dart';
 import 'package:my_project/domain/repository/activitiy.dart';
 import 'package:my_project/domain/repository/wallet_category.dart';
