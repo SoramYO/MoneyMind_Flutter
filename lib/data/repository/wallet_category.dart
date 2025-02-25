@@ -6,23 +6,11 @@ import 'package:my_project/service_locator.dart';
 
 class WalletCategoryRepositoryImpl implements WalletCategoryRepository {
   @override
-  Future<Either<String, List<WalletCategory>>> getWalletCategoryByUserId(String userId, String? walletTypeId, int pageIndex, int pageSize) async {
-   
-   try{
-     final result = await sl<WalletCategoryApiService>().getWalletCategoryByUserId(userId, walletTypeId, pageIndex, pageSize);
-     return result.fold(
-       (error) => Left(error.toString()),
-       (data) => Right(data),
-     );
-   } catch (e) {
-     return Left(e.toString());
-   }
-  }
-  
- @override
-  Future<Either<String, WalletCategory>> getWalletCategoryById(String categoryId) async {
+  Future<Either<String, List<WalletCategory>>> getWalletCategoryByUserId(
+      String userId, String? walletTypeId, int pageIndex, int pageSize) async {
     try {
-      final result = await sl<WalletCategoryApiService>().getWalletCategoryById(categoryId);
+      final result = await sl<WalletCategoryApiService>()
+          .getWalletCategoryByUserId(userId, walletTypeId, pageIndex, pageSize);
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),
@@ -31,10 +19,58 @@ class WalletCategoryRepositoryImpl implements WalletCategoryRepository {
       return Left(e.toString());
     }
   }
+
   @override
-  Future<Either<String, List<WalletCategory>>> createWalletCategoryDefault() async {
+  Future<Either<String, WalletCategory>> getWalletCategoryById(
+      String categoryId) async {
     try {
-      final result = await sl<WalletCategoryApiService>().createWalletCategoryDefault();
+      final result = await sl<WalletCategoryApiService>()
+          .getWalletCategoryById(categoryId);
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, List<WalletCategory>>>
+      createWalletCategoryDefault() async {
+    try {
+      final result =
+          await sl<WalletCategoryApiService>().createWalletCategoryDefault();
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, WalletCategory>> createWalletCategory(
+      WalletCategory walletCategory) async {
+    try {
+      final result = await sl<WalletCategoryApiService>()
+          .createWalletCategory(walletCategory);
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, WalletCategory>> updateWalletCategory(
+      WalletCategory walletCategory) async {
+    try {
+      final result = await sl<WalletCategoryApiService>()
+          .updateWalletCategory(walletCategory);
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),

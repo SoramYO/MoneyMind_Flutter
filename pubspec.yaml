@@ -53,6 +53,8 @@ dependencies:
   flutter_dotenv:
   signalr_core:
   google_sign_in: ^6.2.2
+  cached_network_image:
+  flutter_colorpicker:
 dev_dependencies:
   flutter_test:
     sdk: flutter

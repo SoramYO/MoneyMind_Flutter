@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:my_project/data/models/wallet_type.dart';
 import 'package:my_project/data/repository/activity.dart';
 import 'package:my_project/data/repository/goal_item.dart';
 import 'package:my_project/data/repository/monthly_goal.dart';
@@ -8,6 +9,7 @@ import 'package:my_project/data/repository/sheet_repository.dart';
 import 'package:my_project/data/repository/transaction.dart';
 import 'package:my_project/data/repository/wallet.dart';
 import 'package:my_project/data/repository/wallet_category.dart';
+import 'package:my_project/data/repository/wallet_type.dart';
 import 'package:my_project/data/source/activity_api_service.dart';
 import 'package:my_project/data/source/goal_item_api_service.dart';
 import 'package:my_project/data/source/monthly_goal_api_service.dart';
@@ -17,6 +19,7 @@ import 'package:my_project/data/source/sheet_api_service.dart';
 import 'package:my_project/data/source/transaction_api_service.dart';
 import 'package:my_project/data/source/wallet_api_service.dart';
 import 'package:my_project/data/source/wallet_category_api_service.dart';
+import 'package:my_project/data/source/wallet_type_api_service.dart';
 import 'package:my_project/domain/repository/activitiy.dart';
 import 'package:my_project/domain/repository/goal_item.dart';
 import 'package:my_project/domain/repository/monthly_goal.dart';
@@ -26,6 +29,7 @@ import 'package:my_project/domain/repository/sheet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/domain/repository/wallet_category.dart';
+import 'package:my_project/domain/repository/wallet_type.dart';
 import 'package:my_project/domain/usecases/get_total_balance.dart';
 import 'package:my_project/domain/usecases/google_signin.dart';
 import 'package:my_project/domain/usecases/transaction_list.dart';
@@ -59,6 +63,7 @@ void setupServiceLocator() {
   sl.registerSingleton<ChatApiService>(ChatApiServiceIml());
   sl.registerSingleton<MessageApiService>(MessageApiServiceIml());
   sl.registerSingleton<SheetApiService>(SheetApiServiceImpl());
+  sl.registerSingleton<WalletTypeApiService>(WalletTypeApiServiceImpl());
 
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
@@ -72,6 +77,7 @@ void setupServiceLocator() {
   sl.registerSingleton<ChatRepository>(ChatRepositoryImpl());
   sl.registerSingleton<MessageRepository>(MessageRepositoryImpl());
   sl.registerSingleton<SheetRepository>(SheetRepositoryImpl());
+  sl.registerSingleton<WalletTypeRepository>(WalletTypeRepositoryImpl());
 
   // Usecases
   sl.registerSingleton<SignupUseCase>(SignupUseCase());
