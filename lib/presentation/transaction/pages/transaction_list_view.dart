@@ -551,39 +551,12 @@ class TransactionCard extends StatelessWidget {
     this.onTap,
   }) : super(key: key);
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    if (onDelete == null) return;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Xác nhận xóa"),
-          content: const Text("Bạn có chắc chắn muốn xóa giao dịch này không?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Đóng dialog
-              },
-              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Đóng dialog trước khi xóa
-                onDelete?.call(); // Gọi hàm xóa
-              },
-              child: const Text("Xóa", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _navigateToUpdateTransaction(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TransactionUpdateScreen(transaction: transaction),
+        builder: (context) =>
+            TransactionUpdateScreen(transaction: transaction),
       ),
     );
   }
@@ -591,103 +564,143 @@ class TransactionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tag = transaction.tags.isNotEmpty ? transaction.tags.first : null;
+    // Chỉ hiển thị ngày (dd/MM/yyyy)
+    final formattedDate =
+        DateFormat('dd/MM/yyyy').format(transaction.transactionDate);
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            AppColors.lightGreen.withOpacity(0.1),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grayLight.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Dismissible(
+      key: Key(transaction.id.toString()), // Đảm bảo transaction có id duy nhất
+      direction: DismissDirection.horizontal,
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          // Swipe right -> Chuyển sang chỉnh sửa
+          _navigateToUpdateTransaction(context);
+          return false; // Không xóa widget khỏi cây
+        } else if (direction == DismissDirection.endToStart) {
+          // Swipe left -> Xóa giao dịch
+          if (onDelete == null) return false;
+          bool confirm = await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Xác nhận xóa"),
+                content: const Text(
+                    "Bạn có chắc chắn muốn xóa giao dịch này không?"),
+                actions: [
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.of(context).pop(false),
+                    child: const Text("Hủy",
+                        style: TextStyle(color: Colors.grey)),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.of(context).pop(true),
+                    child: const Text("Xóa",
+                        style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              );
+            },
+          );
+          return confirm;
+        }
+        return false;
+      },
+      onDismissed: (direction) {
+        if (direction == DismissDirection.endToStart) {
+          onDelete?.call();
+        }
+      },
+      background: Container(
+        color: Colors.green,
+        padding: const EdgeInsets.only(left: 20),
+        alignment: Alignment.centerLeft,
+        child: const Icon(Icons.edit, color: Colors.white),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                tag != null ? HexColor(tag.color) : AppColors.primary,
-                tag != null
-                    ? HexColor(tag.color).withOpacity(0.7)
-                    : AppColors.primary.withOpacity(0.7),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(12),
+      secondaryBackground: onDelete == null ? null : Container(
+        color: Colors.red,
+        padding: const EdgeInsets.only(right: 20),
+        alignment: Alignment.centerRight,
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              AppColors.lightGreen.withOpacity(0.1),
+            ],
           ),
-          child: Icon(
-            Icons.receipt_long_rounded,
-            color: Colors.white,
-            size: 28,
-          ),
-        ),
-        title: Text(
-          transaction.description,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: AppColors.text,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            DateFormat('HH:mm dd/MM/yyyy').format(transaction.transactionDate),
-            style: TextStyle(
-              color: AppColors.textLight,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '-${NumberFormat('#,###').format(transaction.amount)}đ',
-              style: TextStyle(
-                color: AppColors.error,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(width: 16),
-            IconButton(
-              icon: Icon(
-                Icons.edit,
-                color: AppColors.primary.withOpacity(0.8),
-              ),
-              onPressed: () => _navigateToUpdateTransaction(context),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: Icon(
-                Icons.delete_rounded,
-                color: AppColors.error.withOpacity(0.8),
-              ),
-              onPressed: () => _showDeleteConfirmationDialog(context),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.grayLight.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        onTap: onTap,
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  tag != null ? HexColor(tag.color) : AppColors.primary,
+                  tag != null
+                      ? HexColor(tag.color).withOpacity(0.7)
+                      : AppColors.primary.withOpacity(0.7),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.receipt_long_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          title: Text(
+            transaction.description,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: AppColors.text,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: Text(
+            '-${transaction.amount.toString()}',
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Color.fromARGB(221, 230, 20, 20),
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              formattedDate,
+              style: TextStyle(
+                color: AppColors.textLight,
+                fontSize: 10,
+              ),
+            ),
+          ),
+          onTap: onTap,
+        ),
       ),
     );
   }
