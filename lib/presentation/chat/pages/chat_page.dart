@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/core/constants/api_urls.dart';
 import 'package:my_project/data/models/chat.dart';
 import 'package:my_project/data/models/message.dart';
 import 'package:my_project/domain/repository/chat.dart';
@@ -40,7 +41,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _loadChatHistory();
-    signalRService = SignalRService("http://localhost:5079/chathub");
+    signalRService = SignalRService(ApiUrls.chat);
     _startSignalR();
 
     // Thêm listener để trigger lazy load tin nhắn cũ khi kéo đến đầu danh sách
