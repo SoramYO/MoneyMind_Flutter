@@ -82,8 +82,6 @@ class CustomLinePainter extends CustomPainter {
         startPoint, Offset(lineWidth, size.height / 2), backgroundPaint);
     canvas.drawLine(startPoint, endPoint, shadowPaint);
     canvas.drawLine(startPoint, endPoint, activePaint);
-
-    _drawGlitter(canvas, startPoint, endPoint, size);
   }
 
   void _drawGlitter(Canvas canvas, Offset start, Offset end, Size size) {
