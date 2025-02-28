@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_project/data/models/activity.dart';
 import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/data/models/transaction.dart';
-import 'package:my_project/data/repository/activity.dart';
 import 'package:my_project/domain/repository/activitiy.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
@@ -21,13 +20,16 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
   List<Wallet> wallets = [];
   List<ActivityDb> activities = [];
   final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _recipientController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+
   String? _selectedWalletId;
   String? _walletCategoryId;
-  String? _selectedActivityId;
+  List<String> _selectedActivitiesId = [];
+
   bool isLoading = false;
   String? error;
 
@@ -44,40 +46,28 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
     _descriptionController.text = widget.transaction.description;
     _dateController.text = widget.transaction.transactionDate.toIso8601String().split('T')[0];
     _selectedWalletId = widget.transaction.walletId;
-    _selectedActivityId = widget.transaction.activyId;
+    _selectedActivitiesId = List<String>.from(widget.transaction.activities!.map((activity) => activity.id));
   }
 
   Future<void> _loadData() async {
-    setState(() {
-      isLoading = true;
-      error = null;
-    });
+    setState(() => isLoading = true);
 
     try {
       final resultListWallets = await sl<WalletRepository>().getWallets();
       resultListWallets.fold(
-        (errorMessage) {
-          setState(() {
-            error = errorMessage;
-          });
-        },
-        (data) {
-          setState(() {
-            wallets = data;
-          });
-        },
+        (errorMessage) => setState(() => error = errorMessage),
+        (data) => setState(() => wallets = data),
       );
+
       if (_selectedWalletId != null) {
         final selectedWallet = wallets.firstWhere((wallet) => wallet.id == _selectedWalletId);
         _walletCategoryId = selectedWallet.walletCategory.id;
         _loadActivities(_walletCategoryId!);
       }
-      isLoading = false;
     } catch (e) {
-      setState(() {
-        error = e.toString();
-        isLoading = false;
-      });
+      setState(() => error = "Lỗi hệ thống: $e");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -85,216 +75,172 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
     try {
       final result = await sl<ActivityRepository>().getActivityDb(walletCategoryId: walletCategoryId);
       result.fold(
-        (errorMessage) {
-          print("Error: $errorMessage");
-        },
-        (data) {
-          setState(() {
-            activities = data;
-          });
-          print("Activities: $data");
-        },
+        (errorMessage) => print("Lỗi khi tải hoạt động: $errorMessage"),
+        (data) => setState(() => activities = data),
       );
     } catch (e) {
       print("Exception: $e");
     }
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _updateTransaction() async {
-    try {
-      final transaction = widget.transaction.copyWith(
-        recipientName: _recipientController.text,
-        amount: double.parse(_amountController.text),
-        description: _descriptionController.text,
-        transactionDate: DateTime.parse(_dateController.text),
-        lastUpdateAt: DateTime.now(),
-        walletId: _selectedWalletId,
-        activyId: _selectedActivityId,
-      );
-
-      final result = await sl<TransactionRepository>().updateTransaction(transaction);
-      result.fold(
-        (errorMessage) {
-          if (errorMessage == "Update transaction successfully") {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Cập nhật giao dịch thành công!!"),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Cập nhật giao dịch thất bại hãy thử lại!!"),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        (data) {
-          print("Transaction updated: $data");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Lưu giao dịch thành công!"),
-              backgroundColor: Colors.green,
-            ),
-          );
-        },
-      );
-    } catch (e) {
-      print("Exception: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Lỗi hệ thống: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+  if (_selectedWalletId == null || _selectedActivitiesId.isEmpty) {
+    _showSnackbar("Please select wallet and activities");
+    return;
   }
+
+  try {
+    final updatedTransaction = TransactionRequest(
+      recipientName: _recipientController.text,
+      amount: double.tryParse(_amountController.text) ?? 0,
+      description: _descriptionController.text,
+      transactionDate: DateTime.tryParse(_dateController.text) ?? DateTime.now(),
+      activities: _selectedActivitiesId,
+      walletId: _selectedWalletId!,
+    );
+
+    final result = await sl<TransactionRepository>().updateTransaction(widget.transaction.id, updatedTransaction);
+
+    result.fold(
+      (errorMessage) => _showSnackbar(errorMessage),
+      (data) {
+        _showSnackbar("Update transaction successfully!");
+        Navigator.pop(context, data); // Trả về transaction đã cập nhật
+      },
+    );
+  } catch (e) {
+    _showSnackbar("Error: $e");
+  }
+}
 
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
       filled: true,
-      fillColor: Colors.grey[100],
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.green, width: 2),
-      ),
+      fillColor: Colors.grey[200],
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.green, width: 2)),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
+  }
+
+  void _showActivitySelectionDialog() async {
+    List<String> tempSelected = List.from(_selectedActivitiesId);
+
+    final selectedIds = await showDialog<List<String>>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text("Chọn hoạt động"),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: activities.map((activity) {
+                    final activityId = activity.id.toString();
+                    final isSelected = tempSelected.contains(activityId);
+
+                    return CheckboxListTile(
+                      title: Text(activity.name),
+                      value: isSelected,
+                      onChanged: (checked) {
+                        setDialogState(() {
+                          if (checked == true) {
+                            tempSelected.add(activityId);
+                          } else {
+                            tempSelected.remove(activityId);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context, null), child: Text("Cancel")),
+                ElevatedButton(onPressed: () => Navigator.pop(context, tempSelected), child: Text("OK"), style: ElevatedButton.styleFrom(backgroundColor: Colors.green)),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (selectedIds != null) {
+      setState(() => _selectedActivitiesId = selectedIds);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        elevation: 0,
-        title: Text(
-          'Cập nhật giao dịch',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: 28, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+      appBar: AppBar(title: Text("Update Transaction"), centerTitle: true, backgroundColor: Colors.green),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: isLoading
             ? Center(child: CircularProgressIndicator())
-            : error != null
-                ? Center(child: Text(error!))
-                : Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: _recipientController,
-                          decoration: _inputDecoration("Người nhận"),
-                        ),
-                        SizedBox(height: 12),
-                        TextFormField(
-                          controller: _amountController,
-                          decoration: _inputDecoration("Số tiền"),
-                          keyboardType: TextInputType.number,
-                        ),
-                        SizedBox(height: 12),
-                        TextFormField(
-                          controller: _descriptionController,
-                          decoration: _inputDecoration("Mô tả"),
-                        ),
-                        SizedBox(height: 12),
-                        TextFormField(
-                          controller: _dateController,
-                          decoration: _inputDecoration("Ngày giao dịch"),
-                          readOnly: true,
-                          onTap: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (pickedDate != null) {
-                              setState(() {
-                                _dateController.text = pickedDate.toIso8601String().split('T')[0];
-                              });
-                            }
-                          },
-                        ),
-                        SizedBox(height: 12),
-                        DropdownButtonFormField<String>(
-                          value: _selectedWalletId,
-                          decoration: _inputDecoration("Ví"),
-                          isExpanded: true,
-                          items: wallets.map((wallet) {
-                            return DropdownMenuItem<String>(
-                              value: wallet.id.toString(),
-                              child: Text("Ví có ${wallet.balance} ${wallet.currency}"),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedWalletId = value;
-                              final selectedWallet = wallets.firstWhere((wallet) => wallet.id == value);
-                              _walletCategoryId = selectedWallet.walletCategory.id;
-                              _loadActivities(_walletCategoryId!);
-                            });
-                          },
-                        ),
-                        SizedBox(height: 12),
-                        if (_walletCategoryId != null)
-                          DropdownButtonFormField<String>(
-                            value: _selectedActivityId,
-                            decoration: _inputDecoration("Hoạt động"),
-                            isExpanded: true,
-                            items: activities.map((activity) {
-                              return DropdownMenuItem<String>(
-                                value: activity.id.toString(),
-                                child: Text(activity.name),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedActivityId = value;
-                              });
-                            },
-                          ),
-                        SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _updateTransaction();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: Text(
-                              "Cập nhật",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
+            : Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(controller: _recipientController, decoration: _inputDecoration("Recipient")),
+                    SizedBox(height: 12),
+                    TextFormField(controller: _amountController, decoration: _inputDecoration("Amount"), keyboardType: TextInputType.number),
+                    SizedBox(height: 12),
+                    TextFormField(
+                        controller: _descriptionController,
+                        decoration: _inputDecoration("Description")),
+                    SizedBox(height: 12),
+                    TextFormField(
+                      controller: _dateController,
+                      decoration: _inputDecoration("Date"),
+                      readOnly: true,
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _dateController.text =
+                                pickedDate.toIso8601String().split('T')[0];
+                          });
+                        }
+                      },
                     ),
-                  ),
+                    SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _selectedWalletId,
+                      decoration: _inputDecoration("Wallet"),
+                      isExpanded: true,
+                      items: wallets.map((wallet) {
+                        return DropdownMenuItem<String>(
+                          value: wallet.id.toString(),
+                          child: Text("${wallet.balance} ${wallet.currency}"),
+                        );
+                      }).toList(),
+                      onChanged: (value) => setState(() => _selectedWalletId = value),
+                    ),
+                    SizedBox(height: 12),
+                    ElevatedButton(onPressed: _showActivitySelectionDialog, child: Text("Choose activities")),
+                    SizedBox(height: 20),
+                    ElevatedButton(onPressed: _updateTransaction, child: Text("Update")),
+                  ],
+                ),
+              ),
       ),
     );
   }

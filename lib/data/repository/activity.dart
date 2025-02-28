@@ -30,6 +30,7 @@ class ActivityRepositoryImpl implements ActivityRepository {
       {String? walletCategoryId, Map<String, String>? queryParams}) async {
     try {
       final result = await sl<ActivityApiService>().getActivityApi(
+        walletCategoryId: walletCategoryId,
         queryParams: queryParams,
       );
       return result.fold(

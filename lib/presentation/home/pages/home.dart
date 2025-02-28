@@ -582,7 +582,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ...dailyTransactions.map(
                         (transaction) =>
-                            TransactionCard(transaction: transaction),
+                             TransactionCard(transaction: transaction),
                       ),
                     ],
                   );

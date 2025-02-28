@@ -1,3 +1,5 @@
+import 'package:my_project/data/models/activity.dart';
+
 class Tag {
   final String id;
   final String name;
@@ -40,7 +42,7 @@ class Transaction {
   final DateTime lastUpdateAt;
   final String userId;
   final String? walletId;
-  final String? activyId;
+  final List<ActivityDb>? activities;
   final List<Tag> tags;
 
   Transaction({
@@ -53,7 +55,7 @@ class Transaction {
     required this.lastUpdateAt,
     required this.userId,
     this.walletId,
-    this.activyId,
+    this.activities,
     required this.tags,
   });
 
@@ -68,7 +70,7 @@ class Transaction {
       lastUpdateAt: DateTime.parse(json['lastUpdateAt']),
       userId: json['userId'],
       walletId: json['walletId'],
-      activyId: json['activyId'],
+      activities: (json['activities'] as List).map((activity) => ActivityDb.fromJson(activity)).toList(),
       tags: (json['tags'] as List).map((tag) => Tag.fromJson(tag)).toList(),
     );
   }
@@ -84,7 +86,7 @@ class Transaction {
       'lastUpdateAt': lastUpdateAt.toIso8601String(),
       'userId': userId,
       'walletId': walletId,
-      'activyId': activyId,
+      'activities': activities?.map((activity) => activity.toJson()).toList(),
       'tags': tags.map((tag) => tag.toJson()).toList(),
     };
   }
@@ -100,7 +102,7 @@ class Transaction {
       lastUpdateAt: DateTime.parse(map['lastUpdateAt']),
       userId: map['userId'],
       walletId: map['walletId'],
-      activyId: map['activyId'],
+      activities: (map['activities'] as List).map((activity) => ActivityDb.fromMap(activity)).toList(),
       tags: (map['tags'] as List).map((tag) => Tag.fromJson(tag)).toList(),
     );
   }
@@ -125,8 +127,69 @@ class Transaction {
       lastUpdateAt: lastUpdateAt ?? this.lastUpdateAt,
       userId: this.userId,
       walletId: walletId ?? this.walletId,
-      activyId: activyId ?? this.activyId,
+      activities: this.activities,
       tags: this.tags,
     );
   }
 } 
+
+class TransactionRequest {
+  final String recipientName;
+  final double amount;
+  final String description;
+  final DateTime transactionDate;
+  final String walletId;
+  final List<String> activities; // Danh sách các activity id
+
+  TransactionRequest({
+    required this.recipientName,
+    required this.amount,
+    required this.description,
+    required this.transactionDate,
+    required this.walletId,
+    required this.activities,
+  });
+
+  // Chuyển đổi TransactionRequest thành Map để gửi lên backend
+  Map<String, dynamic> toJson() {
+    return {
+      'recipientName': recipientName,
+      'amount': amount,
+      'description': description,
+      'transactionDate': transactionDate.toIso8601String(),
+      'walletId': walletId,
+      'activities': activities,
+    };
+  }
+
+  // Tạo instance TransactionRequest từ một Map (nếu cần thiết khi deserialize)
+  factory TransactionRequest.fromJson(Map<String, dynamic> json) {
+    return TransactionRequest(
+      recipientName: json['recipientName'],
+      amount: (json['amount'] as num).toDouble(),
+      description: json['description'],
+      transactionDate: DateTime.parse(json['transactionDate']),
+      walletId: json['walletId'],
+      activities: List<String>.from(json['activities']),
+    );
+  }
+
+  // Phương thức copyWith để dễ dàng tạo ra một bản sao với một số thuộc tính được thay đổi
+  TransactionRequest copyWith({
+    String? recipientName,
+    double? amount,
+    String? description,
+    DateTime? transactionDate,
+    String? walletId,
+    List<String>? activities,
+  }) {
+    return TransactionRequest(
+      recipientName: recipientName ?? this.recipientName,
+      amount: amount ?? this.amount,
+      description: description ?? this.description,
+      transactionDate: transactionDate ?? this.transactionDate,
+      walletId: walletId ?? this.walletId,
+      activities: activities ?? this.activities,
+    );
+  }
+}

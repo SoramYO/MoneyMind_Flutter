@@ -166,11 +166,34 @@ class _TransactionListViewState extends State<TransactionListView> {
     );
   }
 
+  Future<void> _updateTransaction(BuildContext context, Transaction transaction) async {
+  final updatedTransaction = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => TransactionUpdateScreen(transaction: transaction),
+    ),
+  );
+
+  if (updatedTransaction != null && updatedTransaction is Transaction) {
+    setState(() {
+      int index = transactions.indexWhere((t) => t.id == updatedTransaction.id);
+      if (index != -1) {
+        transactions[index] = updatedTransaction; // Cập nhật phần tử trong danh sách
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cập nhật giao dịch thành công'), backgroundColor: Colors.green),
+    );
+  }
+}
+
+
   Future<void> _deleteTransaction(String id) async {
     setState(() {
       isLoading = true;
     });
-    print(id);
+
     final result = await sl<TransactionRepository>().deleteTransaction(id);
 
     setState(() {
@@ -326,7 +349,7 @@ class _TransactionListViewState extends State<TransactionListView> {
         backgroundColor: AppColors.primary,
         elevation: 0,
         title: const Text(
-          'Lịch sử giao dịch',
+          'Transactions',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -457,6 +480,7 @@ class _TransactionListViewState extends State<TransactionListView> {
                     transaction: transaction,
                     onTap: () => _handleTransactionTap(transaction),
                     onDelete: () => _deleteTransaction(transaction.id),
+                    onEdit: () => _updateTransaction(context, transaction),
                   )),
             ],
           );
@@ -542,12 +566,14 @@ class _TransactionListViewState extends State<TransactionListView> {
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
   final VoidCallback? onTap;
 
   const TransactionCard({
     Key? key,
     required this.transaction,
     this.onDelete,
+    this.onEdit,
     this.onTap,
   }) : super(key: key);
 
@@ -576,7 +602,8 @@ class TransactionCard extends StatelessWidget {
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
           // Swipe right -> Chuyển sang chỉnh sửa
-          _navigateToUpdateTransaction(context);
+          // _navigateToUpdateTransaction(context);
+          onEdit?.call();
           return false; // Không xóa widget khỏi cây
         } else if (direction == DismissDirection.endToStart) {
           // Swipe left -> Xóa giao dịch
@@ -585,19 +612,18 @@ class TransactionCard extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text("Xác nhận xóa"),
-                content: const Text(
-                    "Bạn có chắc chắn muốn xóa giao dịch này không?"),
+                title: const Text("Delete Transaction"),
+                content: const Text("Do you want to delete this transaction?"),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child:
-                        const Text("Hủy", style: TextStyle(color: Colors.grey)),
+                    child: const Text("Cancel",
+                        style: TextStyle(color: Colors.grey)),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
-                    child:
-                        const Text("Xóa", style: TextStyle(color: Colors.red)),
+                    child: const Text("Delete",
+                        style: TextStyle(color: Colors.red)),
                   ),
                 ],
               );

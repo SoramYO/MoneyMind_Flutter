@@ -51,7 +51,6 @@ class ActivityApiServiceImpl implements ActivityApiService {
   @override
   Future<Either<String, List<ActivityDb>>> getActivityApi(
       {String? walletCategoryId, Map<String, String>? queryParams}) async {
-    walletCategoryId = '57cdf90d-17f4-4796-84f7-b107a53976a4';
     try {
       final response = await sl<DioClient>().get(
         '${ApiUrls.activity}?WalletCategoryId=$walletCategoryId',
