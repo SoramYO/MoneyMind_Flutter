@@ -105,16 +105,12 @@ class _TransactionListViewState extends State<TransactionListView> {
         result.fold(
           (errorMessage) => error = errorMessage,
           (data) {
-            if (data is List<Transaction>) {
-              transactions = data;
-              // Cập nhật UI để ẩn nút thêm sheet nếu đã có dữ liệu
-              if (transactions.isNotEmpty) {
-                error = null;
-              }
-            } else {
-              error = 'Invalid data format';
+            transactions = data;
+            // Cập nhật UI để ẩn nút thêm sheet nếu đã có dữ liệu
+            if (transactions.isNotEmpty) {
+              error = null;
             }
-          },
+                    },
         );
       });
     }
@@ -570,12 +566,12 @@ class TransactionCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const TransactionCard({
-    Key? key,
+    super.key,
     required this.transaction,
     this.onDelete,
     this.onEdit,
     this.onTap,
-  }) : super(key: key);
+  });
 
   void _navigateToUpdateTransaction(BuildContext context) {
     Navigator.push(

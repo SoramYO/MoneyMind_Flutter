@@ -123,12 +123,12 @@ class Transaction {
       amount: amount ?? this.amount,
       description: description ?? this.description,
       transactionDate: transactionDate ?? this.transactionDate,
-      createAt: this.createAt,
+      createAt: createAt,
       lastUpdateAt: lastUpdateAt ?? this.lastUpdateAt,
-      userId: this.userId,
+      userId: userId,
       walletId: walletId ?? this.walletId,
-      activities: this.activities,
-      tags: this.tags,
+      activities: activities,
+      tags: tags,
     );
   }
 } 

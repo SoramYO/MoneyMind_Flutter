@@ -12,7 +12,7 @@ import 'package:my_project/services/signalr_service.dart';
 class ChatPage extends StatefulWidget {
   final String userId;
 
-  const ChatPage({Key? key, required this.userId}) : super(key: key);
+  const ChatPage({super.key, required this.userId});
 
   @override
   State<ChatPage> createState() => _ChatPageState();

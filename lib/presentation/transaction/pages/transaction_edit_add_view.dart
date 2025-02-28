@@ -8,7 +8,7 @@ import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/service_locator.dart';
 
 class TransactionFormScreen extends StatefulWidget {
-  const TransactionFormScreen({Key? key}) : super(key: key);
+  const TransactionFormScreen({super.key});
 
   @override
   _TransactionFormScreenState createState() => _TransactionFormScreenState();
@@ -175,10 +175,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, tempSelected),
-                  child: Text("OK"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
+                  child: Text("OK"),
                 ),
               ],
             );

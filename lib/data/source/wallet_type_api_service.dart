@@ -42,7 +42,7 @@ class WalletTypeApiServiceImpl implements WalletTypeApiService {
   Future<Either<String, List<WalletType>>> createWalletType(
       WalletType walletType) async {
     try {
-      final url = '${ApiUrls.walletType}';
+      final url = ApiUrls.walletType;
       final response =
           await sl<DioClient>().post(url, data: walletType.toJson());
       if (response.statusCode == 200) {

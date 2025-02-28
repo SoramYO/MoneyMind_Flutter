@@ -11,4 +11,6 @@ abstract class WalletCategoryRepository {
       WalletCategory walletCategory);
   Future<Either<String, WalletCategory>> updateWalletCategory(
       WalletCategory walletCategory);
+       Future<Either<String, List<WalletCategory>>> getWalletCategoryByOnlyUserId(
+      String userId);
 }

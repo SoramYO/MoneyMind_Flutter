@@ -19,6 +19,9 @@ abstract class WalletCategoryApiService {
 
   Future<Either<String, WalletCategory>> updateWalletCategory(
       WalletCategory walletCategory);
+
+  Future<Either<String, List<WalletCategory>>> getWalletCategoryByOnlyUserId(
+      String userId);
 }
 
 class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
@@ -88,7 +91,7 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
   Future<Either<String, WalletCategory>> createWalletCategory(
       WalletCategory walletCategory) async {
     try {
-      final url = "${ApiUrls.walletCategory}";
+      final url = ApiUrls.walletCategory;
       final response =
           await sl<DioClient>().post(url, data: walletCategory.toJson());
       if (response.statusCode == 200) {
@@ -134,6 +137,27 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
     } on DioException catch (e) {
       print('DioException: ${e.response?.data}');
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
+    }
+  }
+  
+  @override
+  Future<Either<String, List<WalletCategory>>> getWalletCategoryByOnlyUserId(String userId) async {
+    try {
+      final url = '${ApiUrls.walletCategory}/$userId?';
+          
+
+      final response = await sl<DioClient>().get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data']['data'];
+        final walletCategories =
+            data.map((json) => WalletCategory.fromJson(json)).toList();
+        return Right(walletCategories);
+      }
+      return Left(response.data['message'] ?? 'Lỗi không xác định');
+    } on DioException catch (e) {
+      return Future.value(
+          Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối'));
     }
   }
 }

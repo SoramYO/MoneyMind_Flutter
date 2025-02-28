@@ -12,10 +12,10 @@ class WalletCategoryFormDialog extends StatefulWidget {
   final String userId;
 
   const WalletCategoryFormDialog({
-    Key? key,
+    super.key,
     this.category,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   State<WalletCategoryFormDialog> createState() =>
