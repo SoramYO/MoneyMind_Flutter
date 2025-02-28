@@ -23,18 +23,15 @@ class ChatTransactionService {
       }
 
       // Create transaction with proper type conversion
-      final transaction = Transaction(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+      final transaction = TransactionRequest(
         recipientName: 'Self',
         amount: (analysis['amount'] is int) 
             ? analysis['amount'].toDouble() 
             : analysis['amount'],
         description: analysis['description'],
         transactionDate: DateTime.now(),
-        createAt: DateTime.now(),
-        lastUpdateAt: DateTime.now(),
-        userId: userId,
-        tags: [], // Can be enhanced with tag detection
+        walletId: 'default',
+        activities: [],
       );
 
       // Save to database

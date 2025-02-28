@@ -4,7 +4,7 @@ import 'package:my_project/data/models/activity_req_params.dart';
 
 abstract class ActivityRepository {
   Future<Either<String, List<ActivityDb>>> getActivityDb({
-    String? walletCategoryId,
+    String walletCategoryId,
     Map<String, String>? queryParams,
   });
   Future<Either<String, String>> createActivity(

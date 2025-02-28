@@ -11,9 +11,9 @@ abstract class TransactionApiService {
     Map<String, String>? queryParams,
   });
   Future<Either<String, Transaction>> createTransaction(
-      Transaction transaction);
-  Future<Either<String, Transaction>> updateTransaction(
-      Transaction transaction);
+      TransactionRequest transaction);
+  Future<Either<String, Transaction>> updateTransaction(String transactionId,
+      TransactionRequest transaction);
   Future<Either<String, bool>> deleteTransaction(String id);
   Future<Either<String, Transaction>> getTransactionById(String id);
 }
@@ -44,7 +44,7 @@ class TransactionApiServiceIml implements TransactionApiService {
 
   @override
   Future<Either<String, Transaction>> createTransaction(
-      Transaction transaction) async {
+      TransactionRequest transaction) async {
     try {
       final response = await sl<DioClient>().post(
         ApiUrls.transactions,
@@ -62,11 +62,11 @@ class TransactionApiServiceIml implements TransactionApiService {
   }
 
   @override
-  Future<Either<String, Transaction>> updateTransaction(
-      Transaction transaction) async {
+  Future<Either<String, Transaction>> updateTransaction(String transactionId,
+      TransactionRequest transaction) async {
     try {
       final response = await sl<DioClient>().put(
-        '${ApiUrls.transactions}/${transaction.id}',
+        '${ApiUrls.transactions}/${transactionId.trim()}',
         data: transaction.toJson(),
       );
 

@@ -25,7 +25,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Either<String, Transaction>> createTransaction(Transaction transaction) async {
+  Future<Either<String, Transaction>> createTransaction(TransactionRequest transaction) async {
     try {
       final result = await sl<TransactionApiService>().createTransaction(transaction);
       return result.fold(
@@ -38,9 +38,9 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Either<String, Transaction>> updateTransaction(Transaction transaction) async {
+  Future<Either<String, Transaction>> updateTransaction(String transactionId, TransactionRequest transaction) async {
     try {
-      final result = await sl<TransactionApiService>().updateTransaction(transaction);
+      final result = await sl<TransactionApiService>().updateTransaction(transactionId, transaction);
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),

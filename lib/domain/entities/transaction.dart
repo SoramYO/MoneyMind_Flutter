@@ -1,4 +1,5 @@
 import 'package:my_project/data/models/transaction.dart';
+import 'package:my_project/domain/entities/activity.dart';
 
 class TransactionEntity {
   final String id;
@@ -9,9 +10,9 @@ class TransactionEntity {
   final DateTime createAt;
   final DateTime lastUpdateAt;
   final String userId;
-  final String? activyId;
   final String? walletId;
 
+  final List<ActivityDb>? activities;
   final List<Tag> tags;
 
   TransactionEntity({
@@ -23,9 +24,9 @@ class TransactionEntity {
     required this.createAt,
     required this.lastUpdateAt,
     required this.userId,
-    required this.activyId,
     this.walletId,
 
+    this.activities,
     required this.tags,
   });
 }
