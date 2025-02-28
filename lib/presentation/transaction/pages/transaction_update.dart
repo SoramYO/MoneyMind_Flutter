@@ -10,7 +10,7 @@ import 'package:my_project/service_locator.dart';
 class TransactionUpdateScreen extends StatefulWidget {
   final Transaction transaction;
 
-  const TransactionUpdateScreen({Key? key, required this.transaction}) : super(key: key);
+  const TransactionUpdateScreen({super.key, required this.transaction});
 
   @override
   _TransactionUpdateScreenState createState() => _TransactionUpdateScreenState();
@@ -169,7 +169,7 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
               ),
               actions: [
                 TextButton(onPressed: () => Navigator.pop(context, null), child: Text("Cancel")),
-                ElevatedButton(onPressed: () => Navigator.pop(context, tempSelected), child: Text("OK"), style: ElevatedButton.styleFrom(backgroundColor: Colors.green)),
+                ElevatedButton(onPressed: () => Navigator.pop(context, tempSelected), style: ElevatedButton.styleFrom(backgroundColor: Colors.green), child: Text("OK")),
               ],
             );
           },

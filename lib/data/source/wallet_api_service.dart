@@ -15,7 +15,7 @@ abstract class WalletApiService {
   Future<Either<String, List<Transaction>>> getWalletByUserId(String userId);
   Future<Either<String, List<Transaction>>> getWalletByWalletId(
       String walletId);
-  Future<Either<String, Transaction>> createWallet(Wallet wallet);
+  Future<Either<String, Wallet>> createWallet(Wallet wallet);
   Future<Either<String, Transaction>> updateWallet(Wallet wallet);
   Future<Either<String, bool>> deleteWallet(String id);
 }
@@ -64,7 +64,7 @@ class WalletApiServiceImpl implements WalletApiService {
   }
 
   @override
-  Future<Either<String, Transaction>> createWallet(Wallet wallet) async {
+  Future<Either<String, Wallet>> createWallet(Wallet wallet) async {
     try {
       final response = await sl<DioClient>().post(
         ApiUrls.wallet,
@@ -72,7 +72,7 @@ class WalletApiServiceImpl implements WalletApiService {
       );
 
       if (response.statusCode == 201) {
-        return Right(Transaction.fromJson(response.data['data']));
+        return Right(Wallet.fromJson(response.data['data']));
       }
 
       return Left(response.data['message'] ?? 'Lỗi không xác định');

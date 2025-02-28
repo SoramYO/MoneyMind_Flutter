@@ -41,7 +41,7 @@ class SheetApiServiceImpl implements SheetApiService {
     try {
       final response = await sl<DioClient>().get('${ApiUrls.checkSheetExists}/$userId');
       return response.data['exists'] ?? false;
-    } on DioException catch (e) {
+    } on DioException {
       return false;
     }
   }

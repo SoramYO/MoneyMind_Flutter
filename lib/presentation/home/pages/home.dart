@@ -286,15 +286,13 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             icon: Icon(Icons.chat),
                             onPressed: () {
-                              if (userId != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ChatPage(userId: userId!)),
-                                );
-                              }
-                            },
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ChatPage(userId: userId!)),
+                              );
+                                                        },
                           ),
                           IconButton(
                             icon: Icon(Icons.add),

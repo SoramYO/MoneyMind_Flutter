@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:my_project/data/models/wallet_type.dart';
 import 'package:my_project/data/repository/activity.dart';
 import 'package:my_project/data/repository/goal_item.dart';
 import 'package:my_project/data/repository/monthly_goal.dart';

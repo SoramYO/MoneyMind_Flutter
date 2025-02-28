@@ -3,6 +3,8 @@ import 'custom_line_painter.dart';
 import 'dart:async';
 
 class GlitterLineDemo extends StatefulWidget {
+  const GlitterLineDemo({super.key});
+
   @override
   _GlitterLineDemoState createState() => _GlitterLineDemoState();
 }

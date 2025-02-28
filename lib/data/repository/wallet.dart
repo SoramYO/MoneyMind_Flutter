@@ -41,4 +41,19 @@ class WalletRepositoryImpl implements WalletRepository {
       return Left(e.toString());
     }
   }
+  
+  @override
+  Future<Either<String, Wallet>> createWallet(Wallet wallet) async {
+    try {
+      final result = await sl<WalletApiService>()
+          .createWallet(wallet);
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+ 
 }

@@ -6,11 +6,11 @@ class MessageInput extends StatelessWidget {
   final VoidCallback onSend;
 
   const MessageInput({
-    Key? key,
+    super.key,
     required this.controller,
     required this.isLoading,
     required this.onSend,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +59,11 @@ class MessageInput extends StatelessWidget {
                 : Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: GestureDetector(
+                      onTap: onSend,
                       child: const Icon(
                         Icons.send,
                         color: Colors.green,
                       ),
-                      onTap: onSend,
                     ),
                   ),
           ],

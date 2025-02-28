@@ -4,7 +4,6 @@ import 'package:my_project/data/models/transaction.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:my_project/core/constants/app_colors.dart';
-import 'package:flutter/cupertino.dart';
 
 class TransactionDetailView extends StatefulWidget {
   final String transactionId;
