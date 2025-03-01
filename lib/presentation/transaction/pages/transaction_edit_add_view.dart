@@ -76,8 +76,11 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   }
 
   Future<void> _createTransaction() async {
-    if (_selectedWalletId == null || _selectedActivitiesId.isEmpty) {
-      _showSnackbar("Please choose wallet and activities");
+    if (!_formKey.currentState!.validate() ||
+        _selectedWalletId == null ||
+        _selectedActivitiesId.isEmpty) {
+      _showSnackbar(
+          "Please fill all fields and select a wallet and activities");
       return;
     }
 
@@ -209,19 +212,43 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
+                    // Recipient Name field validation
                     TextFormField(
-                        controller: _recipientController,
-                        decoration: _inputDecoration("Recipient")),
+                      controller: _recipientController,
+                      decoration: _inputDecoration("Recipient"),
+                      validator: (value) => value?.isEmpty ?? true
+                          ? "Please enter the appropriate recipient name"
+                          : null,
+                    ),
                     SizedBox(height: 12),
+                    // Amount field validation
                     TextFormField(
-                        controller: _amountController,
-                        decoration: _inputDecoration("Amount"),
-                        keyboardType: TextInputType.number),
+                      controller: _amountController,
+                      decoration: _inputDecoration("Amount"),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        // validate in chữ đỏ
+                        if (value == null || value.isEmpty) {
+                          return "Please enter the appropriate amount";
+                        }
+                        final amount = double.tryParse(value);
+                        if (amount == null || amount <= 0) {
+                          return "Invalid number, must be greater than 0";
+                        }
+                        return null;
+                      },
+                    ),
                     SizedBox(height: 12),
+                    // Description field validation
                     TextFormField(
-                        controller: _descriptionController,
-                        decoration: _inputDecoration("Description")),
+                      controller: _descriptionController,
+                      decoration: _inputDecoration("Description"),
+                      validator: (value) => value?.isEmpty ?? true
+                          ? "Please enter a suitable description"
+                          : null,
+                    ),
                     SizedBox(height: 12),
+                    // Transaction Date field validation
                     TextFormField(
                       controller: _dateController,
                       decoration: _inputDecoration("Date"),
@@ -240,8 +267,11 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           });
                         }
                       },
+                      validator: (value) =>
+                          value?.isEmpty ?? true ? "Please enter the appropriate date" : null,
                     ),
                     SizedBox(height: 12),
+                    // Wallet dropdown validation
                     DropdownButtonFormField<String>(
                       value: _selectedWalletId,
                       decoration: _inputDecoration("Wallet"),
@@ -262,6 +292,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           _loadActivities(_walletCategoryId!);
                         });
                       },
+                      validator: (value) =>
+                          value == null ? "Please enter the appropriate wallet" : null,
                     ),
                     SizedBox(height: 12),
                     ElevatedButton(
@@ -269,8 +301,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                         child: Text("Choose Activities")),
                     SizedBox(height: 20),
                     ElevatedButton(
-                        onPressed: _createTransaction,
-                        child: Text("Create")),
+                        onPressed: _createTransaction, child: Text("Create")),
                   ],
                 ),
               ),
