@@ -76,7 +76,7 @@ class _WalletListViewState extends State<WalletListView> {
   void _handleAddWallet() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const WalletAddScreen()),
+      MaterialPageRoute(builder: (context) => WalletAddScreen(userId: widget.userId)),
     ).then((_) {
       _loadWallets(); // Reload wallets after adding a new one
     });
@@ -209,6 +209,14 @@ class WalletCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      wallet.name, // Hiển thị tên ví
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       wallet.walletCategory.name,
                       style: const TextStyle(

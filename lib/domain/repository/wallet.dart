@@ -7,5 +7,5 @@ abstract class WalletRepository {
     Map<String, String>? queryParams,
   });
     Future<Either<String, Wallet>> createWallet(
-      Wallet wallet);
+     Map<String, dynamic> walletData);
 }

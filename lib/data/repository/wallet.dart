@@ -43,10 +43,10 @@ class WalletRepositoryImpl implements WalletRepository {
   }
   
   @override
-  Future<Either<String, Wallet>> createWallet(Wallet wallet) async {
+  Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData) async {
     try {
       final result = await sl<WalletApiService>()
-          .createWallet(wallet);
+          .createWallet(walletData);
       return result.fold(
         (error) => Left(error.toString()),
         (data) => Right(data),
