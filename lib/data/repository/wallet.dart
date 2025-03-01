@@ -55,5 +55,24 @@ class WalletRepositoryImpl implements WalletRepository {
       return Left(e.toString());
     }
   }
+  
+  @override
+  Future<Either<String, bool>> deleteWallet(String id) async{
+         try {
+      final result = await sl<WalletApiService>().deleteWallet(id);
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+  
+  @override
+  Future<Either<String, Wallet>> updateWallet(Map<String, dynamic> walletData) async {
+    // TODO: implement updateWallet
+    throw UnimplementedError();
+  }
  
 }

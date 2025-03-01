@@ -8,4 +8,7 @@ abstract class WalletRepository {
   });
     Future<Either<String, Wallet>> createWallet(
      Map<String, dynamic> walletData);
+     Future<Either<String, Wallet>> updateWallet(
+     Map<String, dynamic> walletData);
+      Future<Either<String, bool>> deleteWallet(String id);
 }

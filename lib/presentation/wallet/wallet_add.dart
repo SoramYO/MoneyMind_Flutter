@@ -65,9 +65,10 @@ class _WalletAddScreenState extends State<WalletAddScreen> {
     );
   }
 
+//nhập sai thông tin hoặc chưa chọn danh mục ví
   Future<void> _createWallet() async {
     if (!_formKey.currentState!.validate() || _selectedCategory == null) {
-      _showSnackbar("Please fill all fields and select a category");
+      _showSnackbar("Please enter correct and complete information!!!");
       return;
     }
 
@@ -126,6 +127,7 @@ class _WalletAddScreenState extends State<WalletAddScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
+                    // Name field validation
                     TextFormField(
                       controller: _nameController,
                       decoration: _inputDecoration("Name"),
@@ -133,6 +135,7 @@ class _WalletAddScreenState extends State<WalletAddScreen> {
                           value?.isEmpty ?? true ? "Required field" : null,
                     ),
                     SizedBox(height: 12),
+                    // Description field validation
                     TextFormField(
                       controller: _descriptionController,
                       decoration: _inputDecoration("Description"),
@@ -140,14 +143,24 @@ class _WalletAddScreenState extends State<WalletAddScreen> {
                           value?.isEmpty ?? true ? "Required field" : null,
                     ),
                     SizedBox(height: 12),
+                    // Balance field validation
                     TextFormField(
                       controller: _balanceController,
                       decoration: _inputDecoration("Balance"),
                       keyboardType: TextInputType.number,
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? "Required field" : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter a valid amount";
+                        }
+                        final balance = double.tryParse(value);
+                        if (balance == null) {
+                          return "Invalid number";
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 12),
+                    // Category dropdown validation
                     DropdownButtonFormField<WalletCategory>(
                       value: _selectedCategory,
                       decoration: _inputDecoration("Category"),

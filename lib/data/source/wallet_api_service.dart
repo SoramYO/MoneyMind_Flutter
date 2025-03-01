@@ -109,12 +109,10 @@ Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData) asy
   @override
   Future<Either<String, bool>> deleteWallet(String id) async {
     try {
-      final response = await sl<DioClient>().delete(
-        '${ApiUrls.wallet}/$id',
-      );
+      final response = await sl<DioClient>().put('${ApiUrls.wallet}/$id/delete');
 
       if (response.statusCode == 200) {
-        return const Right(true);
+        return Right(true);
       }
 
       return Left(response.data['message'] ?? 'Lỗi không xác định');
