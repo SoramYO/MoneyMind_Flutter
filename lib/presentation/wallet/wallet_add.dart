@@ -65,7 +65,7 @@ class _WalletAddScreenState extends State<WalletAddScreen> {
     );
   }
 
-//nhập sai thông tin hoặc chưa chọn danh mục ví
+  //nhập sai thông tin hoặc chưa chọn danh mục ví
   Future<void> _createWallet() async {
     if (!_formKey.currentState!.validate() || _selectedCategory == null) {
       _showSnackbar("Please enter correct and complete information!!!");
@@ -150,11 +150,14 @@ class _WalletAddScreenState extends State<WalletAddScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter a valid amount";
+                          return "Required field";
                         }
                         final balance = double.tryParse(value);
                         if (balance == null) {
                           return "Invalid number";
+                        }
+                        if (balance <= 0) {
+                          return "Please enter balance greater than 0";
                         }
                         return null;
                       },
