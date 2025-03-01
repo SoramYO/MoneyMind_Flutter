@@ -69,6 +69,48 @@ class _WalletListViewState extends State<WalletListView> {
     }
   }
 
+  Future<void> _deleteWallet(String id) async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    try {
+      final result = await sl<WalletRepository>().deleteWallet(id);
+
+      result.fold(
+        (errorMessage) {
+          setState(() {
+            error = errorMessage;
+            isLoading = false;
+          });
+        },
+        (success) {
+          setState(() {
+            wallets.removeWhere((wallet) => wallet.id == id);
+            isLoading = false;
+          });
+          _showSnackbar("Xóa ví thành công!");
+        },
+      );
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   void _handleWalletTap(Wallet wallet) {
     // Handle wallet tap
   }
@@ -145,6 +187,7 @@ class _WalletListViewState extends State<WalletListView> {
             return WalletCard(
               wallet: wallet,
               onTap: () => _handleWalletTap(wallet),
+              onDelete: () => _deleteWallet(wallet.id),
             );
           },
         ),
@@ -152,6 +195,7 @@ class _WalletListViewState extends State<WalletListView> {
     );
   }
 
+//Widget này sẽ hiển thị khi không có ví nào
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -172,82 +216,118 @@ class _WalletListViewState extends State<WalletListView> {
 class WalletCard extends StatelessWidget {
   final Wallet wallet;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   const WalletCard({
     super.key,
     required this.wallet,
     required this.onTap,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Dismissible(
+      key: Key(wallet.id),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Delete wallet"),
+              content: const Text("Are you sure you want to delete this wallet?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Delete"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      onDismissed: (direction) {
+        onDelete();
+      },
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: (wallet.walletCategory.color != null
-                      ? HexColor(wallet.walletCategory.color!).withOpacity(0.2)
-                      : Colors.grey[200]),
-                  borderRadius: BorderRadius.circular(8),
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: (wallet.walletCategory.color != null
+                        ? HexColor(wallet.walletCategory.color!).withOpacity(0.2)
+                        : Colors.grey[200]),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _buildWalletIcon(),
                 ),
-                child: _buildWalletIcon(),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      wallet.name, // Hiển thị tên ví
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      wallet.walletCategory.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      wallet.walletCategory.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        _buildInfoChip(
-                          '${wallet.balance} ${wallet.currency}',
-                          Icons.account_balance_wallet_outlined,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        wallet.name, // Hiển thị tên ví
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        wallet.walletCategory.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        wallet.walletCategory.description,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          _buildInfoChip(
+                            '${wallet.balance} ${wallet.currency}',
+                            Icons.account_balance_wallet_outlined,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
