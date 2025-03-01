@@ -59,6 +59,8 @@ class Tag {
 
 class Wallet {
   final String id;
+  final String name;
+  final String description;
   final double balance;
   final String currency;
   final DateTime createdTime;
@@ -68,6 +70,8 @@ class Wallet {
 
   Wallet({
     required this.id,
+    required this.name,
+    required this.description,
     required this.balance,
     required this.currency,
     required this.createdTime,
@@ -79,6 +83,8 @@ class Wallet {
   factory Wallet.fromJson(Map<String, dynamic> json) {
     return Wallet(
       id: json['id'],
+      name: json['name'],
+      description: json['description'],
       balance: json['balance'],
       currency: json['currency'],
       createdTime: DateTime.parse(json['createdTime']),
@@ -91,6 +97,8 @@ class Wallet {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'name': name,
+      'description': description,
       'balance': balance,
       'currency': currency,
       'createdTime': createdTime.toIso8601String(),
