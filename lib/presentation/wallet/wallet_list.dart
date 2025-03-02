@@ -3,7 +3,8 @@ import 'package:my_project/core/constants/app_colors.dart';
 import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/presentation/wallet/wallet_add.dart';
-import 'package:my_project/presentation/wallet/wallet_detail.dart'; // Step 1: Import WalletDetailView
+import 'package:my_project/presentation/wallet/wallet_detail.dart';
+import 'package:my_project/presentation/wallet/wallet_edit.dart'; // Import WalletEditScreen
 import 'package:my_project/service_locator.dart';
 import 'package:my_project/core/utils/hex_color.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -113,7 +114,6 @@ class _WalletListViewState extends State<WalletListView> {
   }
 
   void _handleWalletTap(Wallet wallet) {
-    // Step 2: Navigate to WalletDetailView with the selected wallet's ID
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -127,7 +127,18 @@ class _WalletListViewState extends State<WalletListView> {
       context,
       MaterialPageRoute(builder: (context) => WalletAddScreen(userId: widget.userId)),
     ).then((_) {
-      _loadWallets(); // Reload wallets after adding a new one
+      _loadWallets();
+    });
+  }
+
+  void _handleEditWallet(Wallet wallet) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WalletEditScreen(wallet: wallet),
+      ),
+    ).then((_) {
+      _loadWallets();
     });
   }
 
@@ -193,8 +204,9 @@ class _WalletListViewState extends State<WalletListView> {
             final wallet = wallets[index];
             return WalletCard(
               wallet: wallet,
-              onTap: () => _handleWalletTap(wallet), // Step 3: Call _handleWalletTap
+              onTap: () => _handleWalletTap(wallet),
               onDelete: () => _deleteWallet(wallet.id),
+              onEdit: () => _handleEditWallet(wallet), // Pass the edit handler
             );
           },
         ),
@@ -202,7 +214,6 @@ class _WalletListViewState extends State<WalletListView> {
     );
   }
 
-  // Widget này sẽ hiển thị khi không có ví nào
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -224,44 +235,59 @@ class WalletCard extends StatelessWidget {
   final Wallet wallet;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onEdit; // Add onEdit callback
 
   const WalletCard({
     super.key,
     required this.wallet,
     required this.onTap,
     required this.onDelete,
+    required this.onEdit, // Initialize onEdit
   });
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
       key: Key(wallet.id),
-      direction: DismissDirection.endToStart,
+      direction: DismissDirection.horizontal, // Allow horizontal swipe
       confirmDismiss: (direction) async {
-        return await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Delete wallet"),
-              content: const Text("Are you sure you want to delete this wallet?"),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text("Delete"),
-                ),
-              ],
-            );
-          },
-        );
+        if (direction == DismissDirection.startToEnd) {
+          onEdit(); // Call onEdit when swiped from left to right
+          return false; // Prevent dismiss
+        } else {
+          return await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Delete wallet"),
+                content: const Text("Are you sure you want to delete this wallet?"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text("Delete"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       },
       onDismissed: (direction) {
-        onDelete();
+        if (direction == DismissDirection.endToStart) {
+          onDelete();
+        }
       },
       background: Container(
+        color: Colors.green,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const Icon(Icons.edit, color: Colors.white),
+      ),
+      secondaryBackground: Container(
         color: Colors.red,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -274,7 +300,7 @@ class WalletCard extends StatelessWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: onTap, // Step 3: Call onTap
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -296,7 +322,7 @@ class WalletCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        wallet.name, // Hiển thị tên ví
+                        wallet.name,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
