@@ -3,6 +3,7 @@ import 'package:my_project/core/constants/app_colors.dart';
 import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/presentation/wallet/wallet_add.dart';
+import 'package:my_project/presentation/wallet/wallet_detail.dart'; // Step 1: Import WalletDetailView
 import 'package:my_project/service_locator.dart';
 import 'package:my_project/core/utils/hex_color.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -112,7 +113,13 @@ class _WalletListViewState extends State<WalletListView> {
   }
 
   void _handleWalletTap(Wallet wallet) {
-    // Handle wallet tap
+    // Step 2: Navigate to WalletDetailView with the selected wallet's ID
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WalletDetail(walletId: wallet.id),
+      ),
+    );
   }
 
   void _handleAddWallet() {
@@ -186,7 +193,7 @@ class _WalletListViewState extends State<WalletListView> {
             final wallet = wallets[index];
             return WalletCard(
               wallet: wallet,
-              onTap: () => _handleWalletTap(wallet),
+              onTap: () => _handleWalletTap(wallet), // Step 3: Call _handleWalletTap
               onDelete: () => _deleteWallet(wallet.id),
             );
           },
@@ -195,7 +202,7 @@ class _WalletListViewState extends State<WalletListView> {
     );
   }
 
-//Widget này sẽ hiển thị khi không có ví nào
+  // Widget này sẽ hiển thị khi không có ví nào
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -267,7 +274,7 @@ class WalletCard extends StatelessWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
+          onTap: onTap, // Step 3: Call onTap
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(

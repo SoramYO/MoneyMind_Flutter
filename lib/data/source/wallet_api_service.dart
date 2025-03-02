@@ -1,6 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:my_project/data/models/wallet.dart';
+import 'package:my_project/data/models/wallet_detail.dart';
+import 'package:my_project/presentation/wallet/wallet_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/api_urls.dart';
 import '../../core/network/dio_client.dart';
@@ -18,6 +20,7 @@ abstract class WalletApiService {
   Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData);
   Future<Either<String, Transaction>> updateWallet(Wallet wallet);
   Future<Either<String, bool>> deleteWallet(String id);
+  Future<Either<String, WalletClone>> getWalletById(String id);
 }
 
 class WalletApiServiceImpl implements WalletApiService {
@@ -63,30 +66,28 @@ class WalletApiServiceImpl implements WalletApiService {
     }
   }
 
-@override
-Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData) async {
-  try {
-    
+  @override
+  Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData) async {
+    try {
+      final response = await sl<DioClient>().post(
+        ApiUrls.wallet,
+        data: walletData,
+      );
 
-    final response = await sl<DioClient>().post(
-      ApiUrls.wallet,
-      data: walletData,
-    );
+      if (response.statusCode == 201 && response.data != null) {
+        return Right(Wallet.fromJson(response.data['data']));
+      }
 
-    if (response.statusCode == 201 && response.data != null) {
-      return Right(Wallet.fromJson(response.data['data']));
+      return Left(response.data?['message'] ?? 'Lỗi không xác định');
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối';
+      print('❌ Lỗi khi tạo Wallet: $errorMessage'); // Logging lỗi
+      return Left(errorMessage);
+    } catch (e) {
+      print('❌ Lỗi không mong muốn: $e'); // Logging lỗi không mong muốn
+      return Left('Đã xảy ra lỗi không mong muốn');
     }
-
-    return Left(response.data?['message'] ?? 'Lỗi không xác định');
-  } on DioException catch (e) {
-    final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối';
-    print('❌ Lỗi khi tạo Wallet: $errorMessage'); // Logging lỗi
-    return Left(errorMessage);
-  } catch (e) {
-    print('❌ Lỗi không mong muốn: $e'); // Logging lỗi không mong muốn
-    return Left('Đã xảy ra lỗi không mong muốn');
   }
-}
 
   @override
   Future<Either<String, Transaction>> updateWallet(Wallet wallet) async {
@@ -160,6 +161,24 @@ Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData) asy
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
+    }
+  }
+
+ @override
+  Future<Either<String, WalletClone>> getWalletById(String id) async {
+    try {
+      final url = '${ApiUrls.wallet}/detail/$id';
+      final response = await sl<DioClient>().get(url);
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'];
+        final wallet = WalletClone.fromJson(data);
+        return Right(wallet);
+      }
+      return Left(response.data['message'] ?? 'Lỗi không xác định');
+    } on DioException catch (e) {
+      return Future.value(
+          Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối'));
     }
   }
 }

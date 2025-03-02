@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:my_project/data/models/wallet.dart';
+import 'package:my_project/data/models/wallet_detail.dart';
 import 'package:my_project/data/source/wallet_api_service.dart';
 import 'package:my_project/domain/repository/wallet.dart';
+import 'package:my_project/presentation/wallet/wallet_detail.dart';
 import 'package:my_project/service_locator.dart';
 
 class WalletRepositoryImpl implements WalletRepository {
@@ -73,6 +75,20 @@ class WalletRepositoryImpl implements WalletRepository {
   Future<Either<String, Wallet>> updateWallet(Map<String, dynamic> walletData) async {
     // TODO: implement updateWallet
     throw UnimplementedError();
+  }
+  
+  @override
+  Future<Either<String, WalletClone>> getWalletById(String id) async {
+    try {
+      final result = await sl<WalletApiService>()
+          .getWalletById(id);
+      return result.fold(
+        (error) => Left(error.toString()),
+        (data) => Right(data),
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
  
 }
