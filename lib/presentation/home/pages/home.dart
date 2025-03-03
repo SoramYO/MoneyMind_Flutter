@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                                     builder: (context) =>
                                         ChatPage(userId: userId!)),
                               );
-                                                        },
+                            },
                           ),
                           IconButton(
                             icon: Icon(Icons.add),
@@ -460,11 +460,12 @@ class _HomePageState extends State<HomePage> {
             ),
             // Danh sách cuộn ngang
             SizedBox(
-              height: 120, // Tăng chiều cao để hiển thị đầy đủ nội dung
+              height: 127, // Tăng chiều cao để hiển thị đầy đủ nội dung
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: wallets.length,
                 itemBuilder: (context, index) {
+                  final name = wallets.elementAt(index).name;
                   final date = DateFormat('dd/MM/yyyy')
                       .format(wallets.elementAt(index).lastUpdatedTime);
                   final balance = wallets.elementAt(index).balance;
@@ -495,6 +496,14 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          name,
+                          style: TextStyle(
+                            color: AppColors.paleGreen,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         Text(
                           "Balance:",
                           style: TextStyle(
@@ -580,7 +589,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ...dailyTransactions.map(
                         (transaction) =>
-                             TransactionCard(transaction: transaction),
+                            TransactionCard(transaction: transaction),
                       ),
                     ],
                   );

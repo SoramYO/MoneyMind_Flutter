@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/presentation/monthly_goal/pages/monthly_goal_list.dart';
+import 'package:my_project/presentation/statistic/pages/statistics.dart';
 import 'package:my_project/presentation/wallet/wallet_list.dart';
 import 'package:my_project/presentation/wallet_category/pages/wallet_category_list.dart';
 import '../home/pages/home.dart';
@@ -113,8 +115,7 @@ class _MainTabViewState extends State<MainTabView> {
                     if (userId != null) {
                       setState(() {
                         selectTab = 2;
-                        currentTabView =
-                            WalletCategoryListView(userId: userId!);
+                        currentTabView = MonthlyGoalListView();
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -134,8 +135,7 @@ class _MainTabViewState extends State<MainTabView> {
                     if (userId != null) {
                       setState(() {
                         selectTab = 3;
-                        currentTabView =
-                            WalletListView(userId: userId!);
+                        currentTabView = WalletListView(userId: userId!);
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -167,8 +167,30 @@ class _MainTabViewState extends State<MainTabView> {
                     }
                   },
                   icon: Icon(
-                    Icons.pie_chart_rounded,
+                    Icons.account_balance_wallet_rounded,
                     color: selectTab == 4 ? AppColors.primary : Colors.grey,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () async {
+                    if (userId != null) {
+                      setState(() {
+                        selectTab = 5;
+                        currentTabView = Statistic(
+                          userId: userId!,
+                        );
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Không tìm thấy thông tin người dùng')),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.pie_chart_rounded,
+                    color: selectTab == 5 ? AppColors.primary : Colors.grey,
                   ),
                 ),
               ],

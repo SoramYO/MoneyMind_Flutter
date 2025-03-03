@@ -706,7 +706,7 @@ class TransactionCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           trailing: Text(
-            '-${transaction.amount.toString()}VND',
+            '-${transaction.amount.toString()} VND',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
