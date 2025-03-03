@@ -257,7 +257,8 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
         id: widget.category?.id ?? '',
         name: _nameController.text,
         description: _descriptionController.text,
-        iconPath: _iconPathController.text.isEmpty ? null : _iconPathController.text,
+        iconPath:
+            _iconPathController.text.isEmpty ? null : _iconPathController.text,
         color: _colorController.text.isEmpty ? null : _colorController.text,
         walletTypeId: _selectedWalletTypeId!,
         userId: widget.userId,
