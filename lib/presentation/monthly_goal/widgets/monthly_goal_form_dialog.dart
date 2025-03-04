@@ -181,7 +181,7 @@ class _MonthlyGoalFormDialogState extends State<MonthlyGoalFormDialog> {
                     child: TextFormField(
                       controller: _monthController,
                       readOnly: true,
-                      onTap: _showMonthPicker,
+                      // onTap: _showMonthPicker,
                       decoration: const InputDecoration(labelText: "Month"),
                     ),
                   ),
@@ -190,7 +190,7 @@ class _MonthlyGoalFormDialogState extends State<MonthlyGoalFormDialog> {
                     child: TextFormField(
                       controller: _yearController,
                       readOnly: true,
-                      onTap: _showYearPicker,
+                      // onTap: _showYearPicker,
                       decoration: const InputDecoration(labelText: "Year"),
                     ),
                   ),

@@ -179,9 +179,11 @@ class _BarChartTransactionState extends State<BarChartTransaction> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              for (double i = maxY * 1.1; i >= 0; i -= maxY * 0.1)
+              for (double i = ((maxY * 1.1) / 1000).ceil() * 1000;
+                  i >= 0;
+                  i -= maxY * 0.1)
                 Text(
-                  NumberFormat.compact().format(i),
+                  NumberFormat.compact().format(i < maxY * 0.1 ? 0 : i),
                   style: const TextStyle(fontSize: 10),
                 ),
             ],

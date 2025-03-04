@@ -288,10 +288,18 @@ class _GoalItemFormDialogState extends State<GoalItemFormDialog> {
                                         '${monthlyGoal.month}/${monthlyGoal.year}'),
                                   ))
                               .toList(),
-                          onChanged: _monthlyGoals.isNotEmpty
-                              ? (value) =>
-                                  setState(() => _selectedMonthlyGoalId = value)
-                              : null,
+                          // onChanged: _monthlyGoals.isNotEmpty
+                          //     ? (value) =>
+                          //         setState(() => _selectedMonthlyGoalId = value)
+                          //     : null,
+                          onChanged: null,
+                          disabledHint: Text(
+                            _monthlyGoals.isNotEmpty
+                                ? '${_monthlyGoals.firstWhere((goal) => goal.id == _selectedMonthlyGoalId, orElse: () => _monthlyGoals.first).month}/${_monthlyGoals.firstWhere((goal) => goal.id == _selectedMonthlyGoalId, orElse: () => _monthlyGoals.first).year}'
+                                : 'No Monthly Goal',
+                            style:
+                                TextStyle(color: Colors.grey), // Làm mờ văn bản
+                          ),
                           validator: (value) =>
                               value == null ? 'Monthly Goal is required' : null,
                         ),
@@ -311,10 +319,23 @@ class _GoalItemFormDialogState extends State<GoalItemFormDialog> {
                                     child: Text(type.name),
                                   ))
                               .toList(),
-                          onChanged: _walletTypes.isNotEmpty
-                              ? (value) =>
-                                  setState(() => _selectedWalletTypeId = value)
-                              : null,
+                          // onChanged: _walletTypes.isNotEmpty
+                          //     ? (value) =>
+                          //         setState(() => _selectedWalletTypeId = value)
+                          //     : null,
+                          onChanged: null,
+                          disabledHint: Text(
+                            _walletTypes.isNotEmpty
+                                ? _walletTypes
+                                    .firstWhere(
+                                        (type) =>
+                                            type.id == _selectedWalletTypeId,
+                                        orElse: () => _walletTypes.first)
+                                    .name
+                                : 'No Wallet Type',
+                            style:
+                                TextStyle(color: Colors.grey), // Làm mờ văn bản
+                          ),
                           validator: (value) =>
                               value == null ? 'Wallet Type is required' : null,
                         ),
