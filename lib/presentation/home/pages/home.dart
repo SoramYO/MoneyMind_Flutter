@@ -294,12 +294,12 @@ class _HomePageState extends State<HomePage> {
                               );
                             },
                           ),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              // Thêm hành động khi bấm vào nút "+"
-                            },
-                          ),
+                          // IconButton(
+                          //   icon: Icon(Icons.add),
+                          //   onPressed: () {
+                          //     // Thêm hành động khi bấm vào nút "+"
+                          //   },
+                          // ),
                         ],
                       ),
                     ),
@@ -459,88 +459,98 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             // Danh sách cuộn ngang
-            SizedBox(
-              height: 127, // Tăng chiều cao để hiển thị đầy đủ nội dung
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: wallets.length,
-                itemBuilder: (context, index) {
-                  final name = wallets.elementAt(index).name;
-                  final date = DateFormat('dd/MM/yyyy')
-                      .format(wallets.elementAt(index).lastUpdatedTime);
-                  final balance = wallets.elementAt(index).balance;
-                  final currency = wallets.elementAt(index).currency;
-                  return Container(
-                    width: 220,
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      // Sử dụng gradient đa dạng theo index
-                      gradient: LinearGradient(
-                        colors: index % 2 == 0
-                            ? [Colors.indigo, Colors.blue]
-                            : [Colors.deepOrange, Colors.orange],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+            wallets.isEmpty
+                ? Center(
+                    child: Text(
+                      'No Data',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: TextStyle(
-                            color: AppColors.paleGreen,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                  )
+                : SizedBox(
+                    height: 127, // Tăng chiều cao để hiển thị đầy đủ nội dung
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: wallets.length,
+                      itemBuilder: (context, index) {
+                        final name = wallets.elementAt(index).name;
+                        final date = DateFormat('dd/MM/yyyy')
+                            .format(wallets.elementAt(index).lastUpdatedTime);
+                        final balance = wallets.elementAt(index).balance;
+                        final currency = wallets.elementAt(index).currency;
+                        return Container(
+                          width: 220,
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            // Sử dụng gradient đa dạng theo index
+                            gradient: LinearGradient(
+                              colors: index % 2 == 0
+                                  ? [Colors.indigo, Colors.blue]
+                                  : [Colors.deepOrange, Colors.orange],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          "Balance:",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                name,
+                                style: TextStyle(
+                                  color: AppColors.paleGreen,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "Balance:",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                '${NumberFormat('#,###').format(balance)} $currency',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Last Updated:",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                date,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          '${NumberFormat('#,###').format(balance)} $currency',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Last Updated:",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          date,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
 
             const SizedBox(height: 10), // Khoảng cách giữa 2 danh sách
             Container(
@@ -567,35 +577,45 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             // Danh sách cuộn dọc
-            Expanded(
-              child: ListView.builder(
-                itemCount: groupedTransactions.length,
-                itemBuilder: (context, index) {
-                  final date = groupedTransactions.keys.elementAt(index);
-                  final dailyTransactions = groupedTransactions[date]!;
+            groupedTransactions.isEmpty
+                ? Center(
+                    child: Text(
+                      'No Data',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: groupedTransactions.length,
+                      itemBuilder: (context, index) {
+                        final date = groupedTransactions.keys.elementAt(index);
+                        final dailyTransactions = groupedTransactions[date]!;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          date,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      ...dailyTransactions.map(
-                        (transaction) =>
-                            TransactionCard(transaction: transaction),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                date,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            ...dailyTransactions.map(
+                              (transaction) =>
+                                  TransactionCard(transaction: transaction),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
       ),
