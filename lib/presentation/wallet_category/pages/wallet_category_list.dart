@@ -410,7 +410,7 @@ class WalletCategoryCard extends StatelessWidget {
   }
 
   Widget _buildCategoryIcon() {
-    // Check if the iconPath is a network URL.
+    // Check if the iconPath is a network URL (including Firebase Storage URLs)
     if (category.iconPath != null &&
         (category.iconPath!.startsWith('http://') ||
             category.iconPath!.startsWith('https://'))) {
@@ -431,19 +431,10 @@ class WalletCategoryCard extends StatelessWidget {
         },
         width: 48,
         height: 48,
-        fit: BoxFit.contain,
-      );
-    } else if (category.iconPath != null) {
-      // Assume it's a local asset.
-      return Image.asset(
-        category.iconPath!,
-        color: category.color != null ? HexColor(category.color!) : Colors.grey,
-        width: 48,
-        height: 48,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
       );
     } else {
-      // Fallback icon if iconPath is null.
+      // Fallback icon if iconPath is null or not a URL
       return Icon(
         Icons.category_outlined,
         color: category.color != null ? HexColor(category.color!) : Colors.grey,

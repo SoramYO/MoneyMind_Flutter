@@ -38,7 +38,7 @@ class _UserProfileState extends State<UserProfile> {
         backgroundColor: AppColors.primary,
         elevation: 0,
         title: const Text(
-          'Thông tin của tôi',
+          'My information',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -138,23 +138,23 @@ class _UserProfileState extends State<UserProfile> {
         children: [
           _buildMenuItem(
             icon: Icons.account_circle_outlined,
-            title: 'Thông tin cá nhân',
+            title: 'Personal information',
             onTap: () {},
           ),
           _buildMenuItem(
             icon: Icons.notifications_outlined,
-            title: 'Thông báo',
+            title: 'Notification',
             onTap: () {},
           ),
           _buildMenuItem(
             icon: Icons.security_outlined,
-            title: 'Bảo mật',
+            title: 'Security',
             onTap: () {},
           ),
           const Divider(height: 24, color: Colors.grey),
           _buildMenuItem(
             icon: Icons.logout_rounded,
-            title: 'Đăng xuất',
+            title: 'Log out',
             onTap: _handleLogout,
             textColor: AppColors.error,
           ),
@@ -214,12 +214,13 @@ class _UserProfileState extends State<UserProfile> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Xác nhận'),
-        content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+        title: const Text('Confirm'),
+        content: const Text('Are you sure you want to log out?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy', style: TextStyle(color: AppColors.textLight)),
+            child: const Text('Cancel',
+                style: TextStyle(color: AppColors.textLight)),
           ),
           TextButton(
             onPressed: () async {
@@ -258,7 +259,8 @@ class _UserProfileState extends State<UserProfile> {
                 );
               }
             },
-            child: const Text('Đăng xuất', style: TextStyle(color: AppColors.error)),
+            child:
+                const Text('Log out', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
