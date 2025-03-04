@@ -23,7 +23,7 @@ class WalletUpdate {
      
       name: json['name'],
       description: json['description'],
-      balance: json['balance'],
+      balance: double.tryParse(json['balance']?.toString() ?? '0') ?? 0.0,
      
       walletCategoryId: WalletCategory.fromJson(json['walletCategory']).id,
     );
