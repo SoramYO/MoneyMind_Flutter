@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/data/models/wallet_category.dart';
+import 'package:my_project/data/models/wallet_update.dart';
 import 'package:my_project/domain/repository/wallet.dart';
+import 'package:my_project/domain/repository/wallet_category.dart';
 import 'package:my_project/service_locator.dart';
 
 class WalletEditScreen extends StatefulWidget {
   final Wallet wallet;
+  final String userId;
 
-  const WalletEditScreen({super.key, required this.wallet});
+  const WalletEditScreen({super.key, required this.wallet, required this.userId});
 
   @override
   _WalletEditScreenState createState() => _WalletEditScreenState();
@@ -30,7 +33,7 @@ class _WalletEditScreenState extends State<WalletEditScreen> {
   void initState() {
     super.initState();
     _initializeFields();
-    
+    _loadWalletCategories(); // Step 1: Load wallet categories
   }
 
   void _initializeFields() {
@@ -40,7 +43,69 @@ class _WalletEditScreenState extends State<WalletEditScreen> {
     _selectedWalletCategoryId = widget.wallet.walletCategory.id;
   }
 
- 
+  Future<void> _loadWalletCategories() async {
+    setState(() => isLoading = true);
+
+    try {
+      final result = await sl<WalletCategoryRepository>().getWalletCategoryByUserId(widget.userId, null, 1, 20);
+      result.fold(
+        (errorMessage) => setState(() => error = errorMessage),
+        (data) => setState(() => walletCategories = data),
+      );
+    } catch (e) {
+      setState(() => error = "System error: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _updateWallet() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      final updatedWalletData = WalletUpdate(
+        name: _nameController.text,
+        description: _descriptionController.text,
+        balance: double.tryParse(_balanceController.text) ?? 0,
+        walletCategoryId: _selectedWalletCategoryId!,
+      );
+
+      final result = await sl<WalletRepository>().updateWallet(widget.wallet.id, updatedWalletData);
+
+      result.fold(
+        (errorMessage) => setState(() {
+          error = errorMessage;
+          isLoading = false;
+          _showSnackbar("Update failed: $errorMessage");
+        }),
+        (data) {
+          setState(() {
+            isLoading = false;
+            _showSnackbar("Wallet updated successfully!");
+            Navigator.pop(context, data); // Return the updated wallet
+          });
+        },
+      );
+    } catch (e) {
+      setState(() {
+        error = "Error: $e";
+        isLoading = false;
+        _showSnackbar("Update failed: $e");
+      });
+    }
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
@@ -102,26 +167,16 @@ class _WalletEditScreenState extends State<WalletEditScreen> {
                       },
                     ),
                     SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: _selectedWalletCategoryId,
+                    TextFormField(
+                      controller: TextEditingController(text: walletCategories.firstWhere((category) => category.id == _selectedWalletCategoryId)?.name ?? ''),
                       decoration: _inputDecoration("Wallet Category"),
-                      isExpanded: true,
-                      items: walletCategories.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category.id.toString(),
-                          child: Text(category.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) => setState(() => _selectedWalletCategoryId = value),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please select a wallet category";
-                        }
-                        return null;
-                      },
+                      readOnly: true,
                     ),
                     SizedBox(height: 20),
-                    ElevatedButton(onPressed: () {}, child: Text("Update")),
+                    ElevatedButton(
+                      onPressed: _updateWallet,
+                      child: Text("Update"),
+                    ),
                   ],
                 ),
               ),

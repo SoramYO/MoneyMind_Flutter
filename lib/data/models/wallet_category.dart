@@ -13,7 +13,7 @@ class WalletCategory {
   final String? walletTypeName;
   final String? walletTypeDescription;
   final List<ActivityDb> activities;
-
+  
   WalletCategory({
     required this.id,
     required this.name,
