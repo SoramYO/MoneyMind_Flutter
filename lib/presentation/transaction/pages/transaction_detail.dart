@@ -9,9 +9,9 @@ class TransactionDetailView extends StatefulWidget {
   final String transactionId;
 
   const TransactionDetailView({
-    super.key,
+    Key? key,
     required this.transactionId,
-  });
+  }) : super(key: key);
 
   @override
   State<TransactionDetailView> createState() => _TransactionDetailViewState();
@@ -35,8 +35,8 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
     });
 
     try {
-      final result = await sl<TransactionRepository>().getTransactionById(widget.transactionId);
-      
+      final result = await sl<TransactionRepository>()
+          .getTransactionById(widget.transactionId);
       result.fold(
         (error) => setState(() {
           _error = error;
@@ -65,8 +65,8 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
 
     if (_error != null || _transaction == null) {
       return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text(_error ?? 'Không tìm thấy giao dịch')),
+        appBar: AppBar(title: const Text('Transaction Details')),
+        body: Center(child: Text(_error ?? 'Not found')),
       );
     }
 
@@ -76,19 +76,24 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
-          'Chi tiết giao dịch',
+          'Transaction Details',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildAmountSection(),
             const SizedBox(height: 24),
             _buildDetailSection(),
             const SizedBox(height: 16),
             _buildMetadataSection(),
+            const SizedBox(height: 16),
+            _buildTagsSection(),
+            const SizedBox(height: 16),
+            _buildActivitiesSection(),
           ],
         ),
       ),
@@ -96,7 +101,7 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
   }
 
   Widget _buildAmountSection() {
-    final isIncome = _transaction!.amount > 0;
+    final isIncome = false;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -121,7 +126,8 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
               ),
               const SizedBox(width: 8),
               Text(
-                NumberFormat.currency(locale: 'vi', symbol: 'đ').format(_transaction!.amount.abs()),
+                NumberFormat.currency(locale: 'vi', symbol: 'VND')
+                    .format(_transaction!.amount.abs()),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -143,11 +149,12 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: (isIncome ? AppColors.success : AppColors.error).withOpacity(0.1),
+              color: (isIncome ? AppColors.success : AppColors.error)
+                  .withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              isIncome ? 'Giao dịch nhận' : 'Giao dịch chi',
+              isIncome ? 'Incoming Transaction' : 'Outgoing Transaction',
               style: TextStyle(
                 color: isIncome ? AppColors.success : AppColors.error,
                 fontWeight: FontWeight.w500,
@@ -178,7 +185,7 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Thông tin giao dịch',
+              'Transaction Information',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -187,11 +194,12 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
             ),
           ),
           const Divider(height: 1),
-          _buildDetailRow('Người nhận', _transaction!.recipientName, Icons.person_outline),
-          _buildDetailRow('Ví liên kết', _transaction!.walletId ?? 'Không có', Icons.account_balance_wallet_outlined),
           _buildDetailRow(
-            'Thời gian',
-            DateFormat('HH:mm dd/MM/yyyy').format(_transaction!.transactionDate),
+              'Recipient', _transaction!.recipientName, Icons.person_outline),
+          _buildDetailRow(
+            'Transaction Date',
+            DateFormat('HH:mm dd/MM/yyyy')
+                .format(_transaction!.transactionDate),
             Icons.access_time,
           ),
         ],
@@ -218,7 +226,7 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Chi tiết hệ thống',
+              'System Details',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -227,17 +235,110 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
             ),
           ),
           const Divider(height: 1),
-          _buildDetailRow('Mã giao dịch', _transaction!.id, Icons.tag),
           _buildDetailRow(
-            'Ngày tạo',
+            'Created At',
             DateFormat('HH:mm dd/MM/yyyy').format(_transaction!.createAt),
             Icons.calendar_today_outlined,
           ),
           if (_transaction!.lastUpdateAt.year > 1)
             _buildDetailRow(
-              'Cập nhật cuối',
+              'Last Updated',
               DateFormat('HH:mm dd/MM/yyyy').format(_transaction!.lastUpdateAt),
               Icons.update,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTagsSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Tags',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (_transaction!.tags == null || _transaction!.tags!.isEmpty)
+            const Text('No tags available.'),
+          if (_transaction!.tags != null && _transaction!.tags!.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _transaction!.tags!.map((tag) {
+                return Tooltip(
+                  message: tag.description,
+                  child: Chip(
+                    label: Text(tag.name),
+                    backgroundColor: _parseColor(tag.color) ?? Colors.grey,
+                  ),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivitiesSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Activities',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (_transaction!.activities == null ||
+              _transaction!.activities!.isEmpty)
+            const Text('No activities available.'),
+          if (_transaction!.activities != null &&
+              _transaction!.activities!.isNotEmpty)
+            Column(
+              children: _transaction!.activities!.map((activity) {
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(activity.name),
+                  subtitle: Text(activity.description),
+                  trailing: Text(DateFormat('HH:mm dd/MM/yyyy')
+                      .format(activity.createdAt)),
+                );
+              }).toList(),
             ),
         ],
       ),
@@ -251,27 +352,40 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
         children: [
           Icon(icon, size: 20, color: Colors.grey[600]),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
-              ),
+          const Spacer(),
+          Text(
+            value,
+            textAlign: TextAlign.end,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
             ),
           ),
         ],
       ),
     );
+  }
+
+  Color? _parseColor(String? colorString) {
+    if (colorString == null || colorString.isEmpty) return null;
+    try {
+      // Remove the '#' character if present
+      final hexColor = colorString.replaceAll('#', '');
+      if (hexColor.length == 6) {
+        return Color(int.parse('FF$hexColor', radix: 16));
+      } else if (hexColor.length == 8) {
+        return Color(int.parse(hexColor, radix: 16));
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   }
 }

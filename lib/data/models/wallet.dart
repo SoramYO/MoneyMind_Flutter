@@ -85,7 +85,7 @@ class Wallet {
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      balance: json['balance'],
+      balance: double.tryParse(json['balance']?.toString() ?? '0') ?? 0.0,
       currency: json['currency'],
       createdTime: DateTime.parse(json['createdTime']),
       lastUpdatedTime: DateTime.parse(json['lastUpdatedTime']),
