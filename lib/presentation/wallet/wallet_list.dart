@@ -135,7 +135,7 @@ class _WalletListViewState extends State<WalletListView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => WalletEditScreen(wallet: wallet),
+        builder: (context) => WalletEditScreen(wallet: wallet, userId: widget.userId),
       ),
     ).then((_) {
       _loadWallets();

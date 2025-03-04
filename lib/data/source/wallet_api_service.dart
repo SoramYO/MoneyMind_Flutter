@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/data/models/wallet_detail.dart';
+import 'package:my_project/data/models/wallet_update.dart';
 import 'package:my_project/presentation/wallet/wallet_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/api_urls.dart';
@@ -18,7 +19,7 @@ abstract class WalletApiService {
   Future<Either<String, List<Transaction>>> getWalletByWalletId(
       String walletId);
   Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData);
-  Future<Either<String, Transaction>> updateWallet(Wallet wallet);
+  Future<Either<String, Wallet>> updateWallet(String id, WalletUpdate wallet);
   Future<Either<String, bool>> deleteWallet(String id);
   Future<Either<String, WalletClone>> getWalletById(String id);
 }
@@ -81,27 +82,28 @@ class WalletApiServiceImpl implements WalletApiService {
       return Left(response.data?['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối';
-      print('❌ Lỗi khi tạo Wallet: $errorMessage'); // Logging lỗi
+      print('Lỗi khi tạo Wallet: $errorMessage'); // Logging lỗi
       return Left(errorMessage);
     } catch (e) {
-      print('❌ Lỗi không mong muốn: $e'); // Logging lỗi không mong muốn
+      print('Lỗi không mong muốn: $e'); // Logging lỗi không mong muốn
       return Left('Đã xảy ra lỗi không mong muốn');
     }
   }
 
   @override
-  Future<Either<String, Transaction>> updateWallet(Wallet wallet) async {
+  Future<Either<String, Wallet>> updateWallet(String id, WalletUpdate wallet) async {
     try {
       final response = await sl<DioClient>().put(
-        '${ApiUrls.wallet}/${wallet.id}',
-        data: wallet.toJson(),
+        '${ApiUrls.wallet}/${id.trim()}',
+          data: wallet.toJson(),
       );
 
+      print('Response: ${response.data['data']}');
       if (response.statusCode == 200) {
-        return Right(Transaction.fromJson(response.data['data']));
+        return Right(Wallet.fromJson(response.data['data']));
       }
 
-      return Left(response.data['message'] ?? 'Lỗi không xác định');
+      return Left(response.data?['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
     }
@@ -118,7 +120,8 @@ class WalletApiServiceImpl implements WalletApiService {
 
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
-      return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
+      // return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
+      return Left( 'Lỗi kết nối');
     }
   }
 
