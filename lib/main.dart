@@ -1,9 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_project/common/bloc/auth/auth_state.dart';
 import 'package:my_project/common/bloc/auth/auth_state_cubit.dart';
 import 'package:my_project/core/configs/theme/app_theme.dart';
+import 'package:my_project/firebase_options.dart';
+import 'package:my_project/utils/firebase_utils.dart';
 import 'presentation/auth/pages/signin.dart';
 import 'presentation/main/main_tab_view.dart';
 import 'service_locator.dart';
@@ -22,10 +25,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator();
   // await dotenv.load(fileName: ".env");
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-  // await initFirebaseMessaging();
+    await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await initFirebaseMessaging();
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarBrightness: Brightness.light,

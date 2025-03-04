@@ -40,6 +40,9 @@ dependencies:
   shared_preferences: ^2.3.5
   firebase_messaging: ^14.7.20
   firebase_core: ^2.27.1
+  firebase_storage: ^11.2.5
+  image_picker:
+  path: ^1.8.3
   http:
   googleapis:
   googleapis_auth:

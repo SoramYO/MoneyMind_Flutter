@@ -75,6 +75,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
       });
     }
   }
+
   Future<void> _showCreateDialog() async {
     final newCategory = await showDialog<WalletCategory>(
       context: context,
@@ -90,6 +91,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
       _loadWalletCategories(); // Reload the list to get updated data
     }
   }
+
   Future<void> _showEditDialog(WalletCategory category) async {
     final updatedCategory = await showDialog<WalletCategory>(
       context: context,
@@ -101,21 +103,21 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
 
     if (updatedCategory != null) {
       setState(() {
-        walletCategories = walletCategories.map((c) => 
-          c.id == updatedCategory.id ? updatedCategory : c).toList();
+        walletCategories = walletCategories
+            .map((c) => c.id == updatedCategory.id ? updatedCategory : c)
+            .toList();
       });
-      
+
       // Optional: Reload from server to ensure data consistency
       _loadWalletCategories();
     }
   }
 
-
   // Nhóm categories theo walletTypeName
   Map<String, List<WalletCategory>> get groupedCategories {
     final groups = <String, List<WalletCategory>>{};
     for (var category in walletCategories) {
-      final typeName = category.walletTypeName ?? 'Không phân loại';
+      final typeName = category.walletTypeName ?? 'Not classified';
       if (!groups.containsKey(typeName)) {
         groups[typeName] = [];
       }
@@ -147,6 +149,15 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
         },
       ),
     );
+
+    // Add this part to apply the filter when user selects it
+    if (result != null) {
+      setState(() {
+        _currentWalletTypeId = result['walletTypeId'];
+        currentPage = 1; // Reset to first page when applying filters
+      });
+      _loadWalletCategories(); // Reload with new filter
+    }
   }
 
   Future<void> _createDefaultWalletCategories() async {
@@ -183,14 +194,14 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
           const Icon(Icons.folder_open, size: 64, color: Colors.grey),
           const SizedBox(height: 20),
           const Text(
-            'Chưa có danh mục ví nào',
+            'No wallet categories yet',
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 30),
           ElevatedButton.icon(
             icon: const Icon(Icons.add, size: 28),
             label: const Text(
-              "Tạo ví mặc định",
+              "Create default wallet",
               style: TextStyle(fontSize: 18),
             ),
             style: ElevatedButton.styleFrom(
@@ -228,7 +239,7 @@ class _WalletCategoryListViewState extends State<WalletCategoryListView> {
           backgroundColor: AppColors.primary,
           elevation: 10,
           title: const Text(
-            'Danh mục ví',
+            'Wallet category',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -378,7 +389,7 @@ class WalletCategoryCard extends StatelessWidget {
                       spacing: 8,
                       children: [
                         _buildInfoChip(
-                          '${category.activities.length} hoạt động',
+                          '${category.activities.length} activities',
                           Icons.list_alt_outlined,
                         ),
                         if (category.walletTypeName != null)
@@ -399,7 +410,7 @@ class WalletCategoryCard extends StatelessWidget {
   }
 
   Widget _buildCategoryIcon() {
-    // Check if the iconPath is a network URL.
+    // Check if the iconPath is a network URL (including Firebase Storage URLs)
     if (category.iconPath != null &&
         (category.iconPath!.startsWith('http://') ||
             category.iconPath!.startsWith('https://'))) {
@@ -420,19 +431,10 @@ class WalletCategoryCard extends StatelessWidget {
         },
         width: 48,
         height: 48,
-        fit: BoxFit.contain,
-      );
-    } else if (category.iconPath != null) {
-      // Assume it's a local asset.
-      return Image.asset(
-        category.iconPath!,
-        color: category.color != null ? HexColor(category.color!) : Colors.grey,
-        width: 48,
-        height: 48,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
       );
     } else {
-      // Fallback icon if iconPath is null.
+      // Fallback icon if iconPath is null or not a URL
       return Icon(
         Icons.category_outlined,
         color: category.color != null ? HexColor(category.color!) : Colors.grey,
