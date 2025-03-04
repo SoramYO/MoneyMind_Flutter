@@ -400,18 +400,18 @@ class _TransactionListViewState extends State<TransactionListView> {
               size: 64, color: Colors.grey),
           const SizedBox(height: 20),
           const Text(
-            'Chưa có giao dịch nào',
+            'Empty transactions',
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 30),
           _buildActionButton(
-            hasSheetId ? 'Đồng bộ ngay' : 'Thêm Google Sheet',
+            hasSheetId ? 'Sync now' : 'Add Google Sheet',
             hasSheetId ? Icons.sync : Icons.add,
             hasSheetId ? _showSyncConfirmation : _showAddSheetDialog,
           ),
           const SizedBox(height: 15),
           _buildActionButton(
-            'Thêm thủ công',
+            'Add manually',
             Icons.add,
             _navigateToCreateTransaction,
           ),

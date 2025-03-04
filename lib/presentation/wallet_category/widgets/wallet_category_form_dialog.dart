@@ -69,8 +69,8 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
           children: [
             Text(
               widget.category == null
-                  ? 'Thêm danh mục ví'
-                  : 'Chỉnh sửa danh mục ví',
+                  ? 'Add Wallet Category'
+                  : 'Edit Wallet Category',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -86,23 +86,23 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
-                        labelText: 'Tên danh mục',
-                        hintText: 'Nhập tên danh mục ví',
+                        labelText: 'Category name',
+                        hintText: 'Enter wallet category name',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         prefixIcon: const Icon(Icons.account_balance_wallet),
                       ),
                       validator: (value) => value?.isEmpty ?? true
-                          ? 'Vui lòng nhập tên danh mục'
+                          ? 'Please enter category name'
                           : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _descriptionController,
                       decoration: InputDecoration(
-                        labelText: 'Mô tả',
-                        hintText: 'Nhập mô tả cho danh mục',
+                        labelText: 'Description',
+                        hintText: 'Enter description',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -110,7 +110,7 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                       ),
                       maxLines: 2,
                       validator: (value) =>
-                          value?.isEmpty ?? true ? 'Vui lòng nhập mô tả' : null,
+                          value?.isEmpty ?? true ? 'Please enter description' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -141,8 +141,8 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                             Expanded(
                               child: Text(
                                 _colorController.text.isEmpty
-                                    ? 'Chọn màu sắc'
-                                    : 'Mã màu: ${_colorController.text}',
+                                    ? 'Choose color'
+                                    : 'Color code: ${_colorController.text}',
                                 style: TextStyle(
                                   color: _colorController.text.isEmpty
                                       ? Colors.grey.shade600
@@ -160,7 +160,7 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                     DropdownButtonFormField<String>(
                       value: _selectedWalletTypeId,
                       decoration: InputDecoration(
-                        labelText: 'Loại ví',
+                        labelText: 'Wallet type',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -175,7 +175,7 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                       onChanged: (value) =>
                           setState(() => _selectedWalletTypeId = value),
                       validator: (value) =>
-                          value == null ? 'Vui lòng chọn loại ví' : null,
+                          value == null ? 'Please choose wallet type' : null,
                     ),
                   ],
                 ),
@@ -192,7 +192,7 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                         horizontal: 24, vertical: 12),
                   ),
                   child: const Text(
-                    'Hủy',
+                    'Cancel',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -210,7 +210,7 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                       ),
                     ),
                     child: Text(
-                      widget.category == null ? 'Tạo mới' : 'Cập nhật',
+                      widget.category == null ? 'Create New' : 'Update',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -304,7 +304,7 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
             : HexColor(_colorController.text);
 
         return AlertDialog(
-          title: const Text('Chọn màu sắc'),
+          title: const Text('Choose color'),
           content: SingleChildScrollView(
             child: ColorPicker(
               pickerColor: currentColor,
@@ -323,11 +323,11 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Hủy'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(currentColor),
-              child: const Text('Chọn'),
+              child: const Text('Select'),
             ),
           ],
         );
