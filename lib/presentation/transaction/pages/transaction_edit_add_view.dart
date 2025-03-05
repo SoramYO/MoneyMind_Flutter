@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:my_project/data/models/activity.dart';
 import 'package:my_project/data/models/wallet.dart';
 import 'package:my_project/data/models/transaction.dart';
+import 'package:my_project/data/source/transaction_api_service.dart';
 import 'package:my_project/domain/repository/activitiy.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/service_locator.dart';
+import 'package:flutter/services.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   const TransactionFormScreen({super.key});
@@ -85,7 +87,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     }
 
     try {
-      final transaction = TransactionRequest(
+      final transactionRequest = TransactionRequest(
         recipientName: _recipientController.text,
         amount: double.tryParse(_amountController.text) ?? 0,
         description: _descriptionController.text,
@@ -95,13 +97,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         walletId: _selectedWalletId!,
       );
 
-      final result =
-          await sl<TransactionRepository>().createTransaction(transaction);
+      final result = await sl<TransactionRepository>()
+          .createTransaction(transactionRequest);
       result.fold(
-        (errorMessage) => _showSnackbar(errorMessage),
-        (data) {
-          _showSnackbar("Transaction created successfully!");
-
+        (errorMessage) => _showSnackbar("////////"),
+        (createdTransaction) {
+          // Clear form fields
           _recipientController.clear();
           _amountController.clear();
           _descriptionController.clear();
@@ -112,6 +113,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             _selectedActivitiesId.clear();
             activities.clear();
           });
+
+          // Debug: in ra thông tin transaction (sử dụng interpolation đúng cách)
+          print("Created transaction: ${createdTransaction.toJson()}");
+
+          // Pop màn hình và trả về transaction vừa tạo
+          Navigator.of(context).pop(createdTransaction);
         },
       );
     } catch (e) {
@@ -224,10 +231,17 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                     // Amount field validation
                     TextFormField(
                       controller: _amountController,
-                      decoration: _inputDecoration("Amount"),
-                      keyboardType: TextInputType.number,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+(\.\d{0,14})?$'),
+                        ), // Chỉ cho phép nhập số và dấu .
+                      ],
+                      decoration: _inputDecoration("Amount").copyWith(
+                        hintText: 'Positive number',
+                      ),
                       validator: (value) {
-                        // validate in chữ đỏ
                         if (value == null || value.isEmpty) {
                           return "Please enter the appropriate amount";
                         }
@@ -267,8 +281,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           });
                         }
                       },
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? "Please enter the appropriate date" : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? "Please enter the appropriate date"
+                          : null,
                     ),
                     SizedBox(height: 12),
                     // Wallet dropdown validation
@@ -279,7 +294,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                       items: wallets.map((wallet) {
                         return DropdownMenuItem<String>(
                           value: wallet.id.toString(),
-                          child: Text("${wallet.balance} ${wallet.currency}"),
+                          child: Text("${wallet.name} (${wallet.balance}VND)"),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -292,8 +307,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           _loadActivities(_walletCategoryId!);
                         });
                       },
-                      validator: (value) =>
-                          value == null ? "Please enter the appropriate wallet" : null,
+                      validator: (value) => value == null
+                          ? "Please enter the appropriate wallet"
+                          : null,
                     ),
                     SizedBox(height: 12),
                     ElevatedButton(

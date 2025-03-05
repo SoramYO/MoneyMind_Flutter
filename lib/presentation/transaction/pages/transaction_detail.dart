@@ -287,12 +287,22 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
                 return Tooltip(
                   message: tag.description,
                   child: Chip(
-                    label: Text(tag.name),
+                    label: Text(
+                      tag.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                     backgroundColor: _parseColor(tag.color) ?? Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 );
               }).toList(),
-            ),
+            )
         ],
       ),
     );
