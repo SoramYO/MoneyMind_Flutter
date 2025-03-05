@@ -11,7 +11,9 @@ import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/presentation/chat/pages/chat_page.dart';
 import 'package:my_project/presentation/profile/pages/user_profile.dart';
 import 'package:my_project/common/widgets/custom_arc_painter.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_detail.dart';
 import 'package:my_project/presentation/transaction/pages/transaction_list_view.dart';
+import 'package:my_project/presentation/transaction/pages/transaction_update.dart';
 import 'package:my_project/service_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -214,6 +216,69 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     }
+  }
+
+  void _handleTransactionTap(Transaction transaction) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionDetailView(
+          transactionId: transaction.id,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updateTransaction(
+      BuildContext context, Transaction transaction) async {
+    final updatedTransaction = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionUpdateScreen(transaction: transaction),
+      ),
+    );
+
+    if (updatedTransaction != null && updatedTransaction is Transaction) {
+      setState(() {
+        int index =
+            transactions.indexWhere((t) => t.id == updatedTransaction.id);
+        if (index != -1) {
+          transactions[index] =
+              updatedTransaction; // Cập nhật phần tử trong danh sách
+        }
+      });
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //       content: Text('Update Transaction successfully!'),
+      //       backgroundColor: Colors.green),
+      // );
+    }
+  }
+
+  Future<void> _deleteTransaction(String id) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final result = await sl<TransactionRepository>().deleteTransaction(id);
+
+    setState(() {
+      isLoading = false;
+      result.fold(
+        (errorMessage) => ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        ),
+        (success) {
+          if (success) {
+            transactions.removeWhere((transaction) => transaction.id == id);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Delete Transaction successfully!')),
+            );
+          }
+        },
+      );
+    }); // deleteTransaction
   }
 
   @override
@@ -443,9 +508,9 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(25),
               ),
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     "Wallets",
@@ -455,6 +520,21 @@ class _HomePageState extends State<HomePage> {
                       color: AppColors.text,
                     ),
                   ),
+                  // TextButton(
+                  //   onPressed: () {
+                  //     Navigator.pop(context,
+                  //         3); // Trả về giá trị 3 (index của WalletList)
+                  //   },
+                  //   child: const Text(
+                  //     'See All',
+                  //     style: TextStyle(
+                  //       fontSize: 20,
+                  //       fontWeight: FontWeight.bold,
+                  //       color:
+                  //           AppColors.primary, // Màu sắc có thể thay đổi tùy ý
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -608,8 +688,14 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             ...dailyTransactions.map(
-                              (transaction) =>
-                                  TransactionCard(transaction: transaction),
+                              (transaction) => TransactionCard(
+                                transaction: transaction,
+                                onTap: () => _handleTransactionTap(transaction),
+                                onDelete: () =>
+                                    _deleteTransaction(transaction.id),
+                                onEdit: () =>
+                                    _updateTransaction(context, transaction),
+                              ),
                             ),
                           ],
                         );
