@@ -9,7 +9,11 @@ import '../../service_locator.dart';
 class MonthlyGoalRepositoryImpl implements MonthlyGoalRepository {
   @override
   Future<Either<String, double>> getTotalAmount() async {
-    Either result = await sl<MonthlyGoalApiService>().getTotalAmount();
+    final now = DateTime.now();
+    int currentMonth = now.month;
+    int currentYear = now.year;
+    Either result = await sl<MonthlyGoalApiService>()
+        .getMonthlyGoals(currentYear, currentMonth, null, 1, 10);
     return result.fold((error) => Left(error), // Nếu lỗi, trả về lỗi
         (response) async {
       if (response.statusCode == 200) {
@@ -17,24 +21,16 @@ class MonthlyGoalRepositoryImpl implements MonthlyGoalRepository {
           final data = response.data;
 
           if (data != null && data["status"] == 200) {
-            final now = DateTime.now();
-            int currentMonth = now.month;
-            int currentYear = now.year;
-            List<dynamic> monthlyGoals = data["data"]["data"] ?? [];
-
+            final List<dynamic> data = response.data['data']['data'];
+            final monthlyGoals = data
+                .map((json) =>
+                    MonthlyGoal.fromJson(json as Map<String, dynamic>))
+                .toList();
             // Tìm Monthly Goal theo tháng/năm hiện tại và status = 1
-            var matchedGoal = monthlyGoals.firstWhere(
-              (goal) =>
-                  goal["month"] == currentMonth &&
-                  goal["year"] == currentYear &&
-                  goal["status"] == 1,
-              orElse: () => null,
-            );
+            var matchedGoal = monthlyGoals.first;
+            double totalAmount = matchedGoal.totalAmount;
 
-            double totalAmount = matchedGoal != null
-                ? (matchedGoal["totalAmount"] ?? 6000000).toDouble()
-                : 6000000.0;
-
+            print(matchedGoal);
             return Right(totalAmount);
           } else {
             return Left("Dữ liệu API không hợp lệ");
