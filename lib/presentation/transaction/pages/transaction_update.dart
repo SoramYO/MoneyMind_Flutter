@@ -6,6 +6,7 @@ import 'package:my_project/domain/repository/activitiy.dart';
 import 'package:my_project/domain/repository/wallet.dart';
 import 'package:my_project/domain/repository/transaction.dart';
 import 'package:my_project/service_locator.dart';
+import 'package:flutter/services.dart';
 
 class TransactionUpdateScreen extends StatefulWidget {
   final Transaction transaction;
@@ -13,7 +14,8 @@ class TransactionUpdateScreen extends StatefulWidget {
   const TransactionUpdateScreen({super.key, required this.transaction});
 
   @override
-  _TransactionUpdateScreenState createState() => _TransactionUpdateScreenState();
+  _TransactionUpdateScreenState createState() =>
+      _TransactionUpdateScreenState();
 }
 
 class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
@@ -44,9 +46,11 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
     _recipientController.text = widget.transaction.recipientName;
     _amountController.text = widget.transaction.amount.toString();
     _descriptionController.text = widget.transaction.description;
-    _dateController.text = widget.transaction.transactionDate.toIso8601String().split('T')[0];
+    _dateController.text =
+        widget.transaction.transactionDate.toIso8601String().split('T')[0];
     _selectedWalletId = widget.transaction.walletId;
-    _selectedActivitiesId = List<String>.from(widget.transaction.activities!.map((activity) => activity.id));
+    _selectedActivitiesId = List<String>.from(
+        widget.transaction.activities!.map((activity) => activity.id));
   }
 
   Future<void> _loadData() async {
@@ -60,7 +64,8 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
       );
 
       if (_selectedWalletId != null) {
-        final selectedWallet = wallets.firstWhere((wallet) => wallet.id == _selectedWalletId);
+        final selectedWallet =
+            wallets.firstWhere((wallet) => wallet.id == _selectedWalletId);
         _walletCategoryId = selectedWallet.walletCategory.id;
         _loadActivities(_walletCategoryId!);
       }
@@ -73,7 +78,8 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
 
   Future<void> _loadActivities(String walletCategoryId) async {
     try {
-      final result = await sl<ActivityRepository>().getActivityDb(walletCategoryId: walletCategoryId);
+      final result = await sl<ActivityRepository>()
+          .getActivityDb(walletCategoryId: walletCategoryId);
       result.fold(
         (errorMessage) => print("Lỗi khi tải hoạt động: $errorMessage"),
         (data) => setState(() => activities = data),
@@ -94,42 +100,47 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
   }
 
   Future<void> _updateTransaction() async {
-  if (_selectedWalletId == null || _selectedActivitiesId.isEmpty) {
-    _showSnackbar("Please select wallet and activities");
-    return;
+    if (_selectedWalletId == null || _selectedActivitiesId.isEmpty) {
+      _showSnackbar("Please select wallet and activities");
+      return;
+    }
+
+    try {
+      final updatedTransaction = TransactionRequest(
+        recipientName: _recipientController.text,
+        amount: double.tryParse(_amountController.text) ?? 0,
+        description: _descriptionController.text,
+        transactionDate:
+            DateTime.tryParse(_dateController.text) ?? DateTime.now(),
+        activities: _selectedActivitiesId,
+        walletId: _selectedWalletId!,
+      );
+
+      final result = await sl<TransactionRepository>()
+          .updateTransaction(widget.transaction.id, updatedTransaction);
+
+      result.fold(
+        (errorMessage) => _showSnackbar(errorMessage),
+        (data) {
+          _showSnackbar("Update transaction successfully!");
+          Navigator.pop(context, data); // Trả về transaction đã cập nhật
+        },
+      );
+    } catch (e) {
+      _showSnackbar("Error: $e");
+    }
   }
-
-  try {
-    final updatedTransaction = TransactionRequest(
-      recipientName: _recipientController.text,
-      amount: double.tryParse(_amountController.text) ?? 0,
-      description: _descriptionController.text,
-      transactionDate: DateTime.tryParse(_dateController.text) ?? DateTime.now(),
-      activities: _selectedActivitiesId,
-      walletId: _selectedWalletId!,
-    );
-
-    final result = await sl<TransactionRepository>().updateTransaction(widget.transaction.id, updatedTransaction);
-
-    result.fold(
-      (errorMessage) => _showSnackbar(errorMessage),
-      (data) {
-        _showSnackbar("Update transaction successfully!");
-        Navigator.pop(context, data); // Trả về transaction đã cập nhật
-      },
-    );
-  } catch (e) {
-    _showSnackbar("Error: $e");
-  }
-}
 
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
       filled: true,
       fillColor: Colors.grey[200],
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.green, width: 2)),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.green, width: 2)),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
@@ -144,7 +155,8 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
           builder: (context, setDialogState) {
             return AlertDialog(
               title: Text("Chọn hoạt động"),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               content: SingleChildScrollView(
                 child: Column(
                   children: activities.map((activity) {
@@ -168,8 +180,14 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
                 ),
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(context, null), child: Text("Cancel")),
-                ElevatedButton(onPressed: () => Navigator.pop(context, tempSelected), style: ElevatedButton.styleFrom(backgroundColor: Colors.green), child: Text("OK")),
+                TextButton(
+                    onPressed: () => Navigator.pop(context, null),
+                    child: Text("Cancel")),
+                ElevatedButton(
+                    onPressed: () => Navigator.pop(context, tempSelected),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: Text("OK")),
               ],
             );
           },
@@ -185,7 +203,10 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Update Transaction"), centerTitle: true, backgroundColor: Colors.green),
+      appBar: AppBar(
+          title: Text("Update Transaction"),
+          centerTitle: true,
+          backgroundColor: Colors.green),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: isLoading
@@ -194,9 +215,33 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    TextFormField(controller: _recipientController, decoration: _inputDecoration("Recipient")),
+                    TextFormField(
+                        controller: _recipientController,
+                        decoration: _inputDecoration("Recipient")),
                     SizedBox(height: 12),
-                    TextFormField(controller: _amountController, decoration: _inputDecoration("Amount"), keyboardType: TextInputType.number),
+                    TextFormField(
+                      controller: _amountController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+(\.\d{0,14})?$'),
+                        ), // Chỉ cho phép nhập số và dấu .
+                      ],
+                      decoration: _inputDecoration("Amount").copyWith(
+                        hintText: 'Positive number',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter the appropriate amount";
+                        }
+                        final amount = double.tryParse(value);
+                        if (amount == null || amount <= 0) {
+                          return "Invalid number, must be greater than 0";
+                        }
+                        return null;
+                      },
+                    ),
                     SizedBox(height: 12),
                     TextFormField(
                         controller: _descriptionController,
@@ -229,15 +274,19 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
                       items: wallets.map((wallet) {
                         return DropdownMenuItem<String>(
                           value: wallet.id.toString(),
-                          child: Text("${wallet.balance} ${wallet.currency}"),
+                          child: Text("${wallet.name} (${wallet.balance}VND)"),
                         );
                       }).toList(),
-                      onChanged: (value) => setState(() => _selectedWalletId = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedWalletId = value),
                     ),
                     SizedBox(height: 12),
-                    ElevatedButton(onPressed: _showActivitySelectionDialog, child: Text("Choose activities")),
+                    ElevatedButton(
+                        onPressed: _showActivitySelectionDialog,
+                        child: Text("Choose activities")),
                     SizedBox(height: 20),
-                    ElevatedButton(onPressed: _updateTransaction, child: Text("Update")),
+                    ElevatedButton(
+                        onPressed: _updateTransaction, child: Text("Update")),
                   ],
                 ),
               ),

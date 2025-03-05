@@ -110,7 +110,7 @@ class _TransactionListViewState extends State<TransactionListView> {
             if (transactions.isNotEmpty) {
               error = null;
             }
-                    },
+          },
         );
       });
     }
@@ -162,25 +162,38 @@ class _TransactionListViewState extends State<TransactionListView> {
     );
   }
 
-  Future<void> _updateTransaction(BuildContext context, Transaction transaction) async {
-  final updatedTransaction = await Navigator.push(
+  Future<void> _updateTransaction(
+      BuildContext context, Transaction transaction) async {
+    final updatedTransaction = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionUpdateScreen(transaction: transaction),
+      ),
+    );
+
+    if (updatedTransaction != null && updatedTransaction is Transaction) {
+      setState(() {
+        int index =
+            transactions.indexWhere((t) => t.id == updatedTransaction.id);
+        if (index != -1) {
+          transactions[index] =
+              updatedTransaction; // Cập nhật phần tử trong danh sách
+        }
+      });
+    }
+  }
+  Future<void> _createTransaction(BuildContext context) async {
+  final newTransaction = await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => TransactionUpdateScreen(transaction: transaction),
+      builder: (context) => const TransactionFormScreen(),
     ),
   );
 
-  if (updatedTransaction != null && updatedTransaction is Transaction) {
+  if (newTransaction != null && newTransaction is Transaction) {
     setState(() {
-      int index = transactions.indexWhere((t) => t.id == updatedTransaction.id);
-      if (index != -1) {
-        transactions[index] = updatedTransaction; // Cập nhật phần tử trong danh sách
-      }
+      transactions.add(newTransaction);
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cập nhật giao dịch thành công'), backgroundColor: Colors.green),
-    );
   }
 }
 
@@ -233,7 +246,7 @@ class _TransactionListViewState extends State<TransactionListView> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Thêm Google Sheet'),
+          title: const Text('Add Google Sheet ID'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -241,7 +254,7 @@ class _TransactionListViewState extends State<TransactionListView> {
                 controller: sheetIdController,
                 decoration: const InputDecoration(
                   labelText: 'Sheet ID',
-                  hintText: 'Nhập ID của Google Sheet',
+                  hintText: 'Enter your Google Sheet ID',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -251,7 +264,7 @@ class _TransactionListViewState extends State<TransactionListView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Hủy'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -280,7 +293,7 @@ class _TransactionListViewState extends State<TransactionListView> {
                         }
                       }
                     },
-              child: const Text('Lưu'),
+              child: const Text('Save'),
             ),
           ],
         ),
@@ -292,17 +305,17 @@ class _TransactionListViewState extends State<TransactionListView> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Đồng bộ ngay?'),
+        title: const Text('Sync transactions?'),
         content: const Text(
-            'Bạn có muốn đồng bộ dữ liệu từ Google Sheet ngay bây giờ?'),
+            'Do you want to sync transactions with Google Sheet now?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Để sau'),
+            child: const Text('Later'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Đồng bộ'),
+            child: const Text('Sync'),
           ),
         ],
       ),
@@ -313,8 +326,7 @@ class _TransactionListViewState extends State<TransactionListView> {
           await sl<SheetRepository>().checkSheetExists(widget.userId);
       if (!hasSheetId) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Vui lòng thêm Sheet ID trước khi đồng bộ')),
+          const SnackBar(content: Text('Please add Google Sheet ID first!')),
         );
         return;
       }
@@ -358,15 +370,10 @@ class _TransactionListViewState extends State<TransactionListView> {
           ),
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TransactionFormScreen(),
-                ),
-              );
+            onPressed: () async {
+              await _createTransaction(context);
             },
-          ),
+          )
         ],
       ),
       body: Stack(

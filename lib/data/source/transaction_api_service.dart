@@ -51,7 +51,7 @@ class TransactionApiServiceIml implements TransactionApiService {
         data: transaction.toJson(),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         return Right(Transaction.fromJson(response.data['data']));
       }
 
