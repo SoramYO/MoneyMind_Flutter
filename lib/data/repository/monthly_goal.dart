@@ -26,6 +26,9 @@ class MonthlyGoalRepositoryImpl implements MonthlyGoalRepository {
                 .map((json) =>
                     MonthlyGoal.fromJson(json as Map<String, dynamic>))
                 .toList();
+            if(monthlyGoals.isEmpty) {
+              return Right(6000000);
+            }
             // Tìm Monthly Goal theo tháng/năm hiện tại và status = 1
             var matchedGoal = monthlyGoals.first;
             double totalAmount = matchedGoal.totalAmount;
