@@ -17,5 +17,6 @@ class ApiUrls {
   static const syncSheet = '${baseURL}GoogleSheetSync/sync';
   static const checkSheetExists = '${baseURL}Sheet/isExists';
   static const walletType = '${baseURL}WalletType';
-  static const chat = 'https://app-moneymind-swd392.azurewebsites.net/chathub';
+  static const chat = '${baseURL}Chat';
+  static const chatHub = 'http://10.0.2.2:8080/chathub';
 }

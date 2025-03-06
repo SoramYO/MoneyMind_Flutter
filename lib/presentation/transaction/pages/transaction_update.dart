@@ -116,6 +116,8 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
         walletId: _selectedWalletId!,
       );
 
+      setState(() => isLoading = true);
+
       final result = await sl<TransactionRepository>()
           .updateTransaction(widget.transaction.id, updatedTransaction);
 
@@ -128,6 +130,8 @@ class _TransactionUpdateScreenState extends State<TransactionUpdateScreen> {
       );
     } catch (e) {
       _showSnackbar("Error: $e");
+    }finally {
+      setState(() => isLoading = false);
     }
   }
 

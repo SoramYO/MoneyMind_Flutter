@@ -17,7 +17,6 @@ class ChatApiServiceIml implements ChatApiService {
       final response = await sl<DioClient>().get(
         '${ApiUrls.chat}/$userId',
       );
-      print("response: $response");
       if (response.statusCode == 200) {
         final dynamic data = response.data['data'];
         final chat = ChatBox.fromJson(data);
