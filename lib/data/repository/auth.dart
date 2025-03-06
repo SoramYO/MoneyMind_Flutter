@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:my_project/utils/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repository/auth.dart';
 import '../../service_locator.dart';
@@ -96,18 +97,17 @@ class AuthRepositoryImpl extends AuthRepository {
             'fullName', response.data['data']['fullName']);
         sharedPreferences.setString('email', response.data['data']['email']);
 
-        // // Xử lý device token
-        // String token = await getDeviceToken();
-        // print("Token: $token");
-        // if (token == "empty token") {
-        //   return Left("Không thể lấy device token");
-        // }
+        // Xử lý device token
+        String token = await getDeviceToken();
+        print("Token: $token");
+        if (token == "empty token") {
+          return Left("Không thể lấy device token");
+        }
 
-        // Either deviceTokenResult = await registerDeviceToken(token);
-        // return deviceTokenResult.fold(
-        //   (error) => Left("Không thể đăng ký device token"),
-        //   (success) => Right(response)
-        // );
+        Either deviceTokenResult = await registerDeviceToken(token);
+        return deviceTokenResult.fold(
+            (error) => Left("Không thể đăng ký device token"),
+            (success) => Right(response));
 
         return Right(response);
       }
@@ -155,6 +155,17 @@ class AuthRepositoryImpl extends AuthRepository {
           sharedPreferences.setString(
               'fullName', response.data['data']['fullName']);
           sharedPreferences.setString('email', response.data['data']['email']);
+
+          String token = await getDeviceToken();
+          print("Token: $token");
+          if (token == "empty token") {
+            return Left("Không thể lấy device token");
+          }
+
+          Either deviceTokenResult = await registerDeviceToken(token);
+          return deviceTokenResult.fold(
+              (error) => Left("Không thể đăng ký device token"),
+              (success) => Right(response));
 
           return Right(true);
         } else {
