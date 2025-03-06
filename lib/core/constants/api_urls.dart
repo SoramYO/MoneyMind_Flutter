@@ -1,7 +1,5 @@
 class ApiUrls {
-
-    static const baseURL = 'http://localhost:8080/api/';
-
+  static const baseURL = 'https://app-moneymind-swd392.azurewebsites.net/api/';
   static const register = '${baseURL}Authentications/Register';
   static const userProfile = '${baseURL}user/profile';
   static const login = '${baseURL}Authentications/Login';
@@ -19,5 +17,5 @@ class ApiUrls {
   static const syncSheet = '${baseURL}GoogleSheetSync/sync';
   static const checkSheetExists = '${baseURL}Sheet/isExists';
   static const walletType = '${baseURL}WalletType';
-  static const chat = 'https://10.0.2.2:5079/chathub';
+  static const chat = 'https://app-moneymind-swd392.azurewebsites.net/chathub';
 }
