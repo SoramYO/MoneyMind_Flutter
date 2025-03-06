@@ -30,6 +30,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   String? _walletCategoryId;
   List<String> _selectedActivitiesId = [];
 
+  bool _isLoadingActivities = false;
   bool isLoading = false;
   String? error;
 
@@ -97,10 +98,11 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         walletId: _selectedWalletId!,
       );
 
+      setState(() => isLoading = true);
       final result = await sl<TransactionRepository>()
           .createTransaction(transactionRequest);
       result.fold(
-        (errorMessage) => _showSnackbar("////////"),
+        (errorMessage) => _showSnackbar(errorMessage),
         (createdTransaction) {
           // Clear form fields
           _recipientController.clear();
@@ -123,6 +125,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       );
     } catch (e) {
       _showSnackbar("Error: $e");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -304,7 +308,14 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                               .firstWhere((wallet) => wallet.id == value)
                               .walletCategory
                               .id;
-                          _loadActivities(_walletCategoryId!);
+                          _isLoadingActivities = true; // Bắt đầu tải dữ liệu
+                        });
+
+                        _loadActivities(_walletCategoryId!).then((_) {
+                          setState(() {
+                            _isLoadingActivities =
+                                false; // Hoàn tất tải dữ liệu
+                          });
                         });
                       },
                       validator: (value) => value == null
@@ -312,9 +323,48 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           : null,
                     ),
                     SizedBox(height: 12),
-                    ElevatedButton(
-                        onPressed: _showActivitySelectionDialog,
-                        child: Text("Choose Activities")),
+                    Container(
+                      width: double.infinity, // Chiếm toàn bộ chiều rộng
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        child: ElevatedButton(
+                          onPressed: (_selectedWalletId == null ||
+                                  _isLoadingActivities)
+                              ? null
+                              : _showActivitySelectionDialog,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.list_alt_rounded, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Choose Activities",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              if (_isLoadingActivities) ...[
+                                const SizedBox(width: 12),
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 20),
                     ElevatedButton(
                         onPressed: _createTransaction, child: Text("Create")),

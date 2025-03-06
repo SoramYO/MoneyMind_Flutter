@@ -41,7 +41,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _loadChatHistory();
-    signalRService = SignalRService(ApiUrls.chat);
+    signalRService = SignalRService(ApiUrls.chatHub);
     _startSignalR();
 
     // Thêm listener để trigger lazy load tin nhắn cũ khi kéo đến đầu danh sách
