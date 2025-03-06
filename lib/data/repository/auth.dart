@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:my_project/utils/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repository/auth.dart';
 import '../../service_locator.dart';
@@ -96,18 +97,17 @@ class AuthRepositoryImpl extends AuthRepository {
             'fullName', response.data['data']['fullName']);
         sharedPreferences.setString('email', response.data['data']['email']);
 
-        // // Xử lý device token
-        // String token = await getDeviceToken();
-        // print("Token: $token");
-        // if (token == "empty token") {
-        //   return Left("Không thể lấy device token");
-        // }
+        // Xử lý device token
+        String token = await getDeviceToken();
+        print("Token: $token");
+        if (token == "empty token") {
+          return Left("Không thể lấy device token");
+        }
 
-        // Either deviceTokenResult = await registerDeviceToken(token);
-        // return deviceTokenResult.fold(
-        //   (error) => Left("Không thể đăng ký device token"),
-        //   (success) => Right(response)
-        // );
+        Either deviceTokenResult = await registerDeviceToken(token);
+        return deviceTokenResult.fold(
+            (error) => Left("Không thể đăng ký device token"),
+            (success) => Right(response));
 
         return Right(response);
       }
@@ -117,13 +117,13 @@ class AuthRepositoryImpl extends AuthRepository {
   }
 
   @override
-  Future<Either> registerDeviceToken(String deviceToken) async {
+  Future<Either<String, bool>> registerDeviceToken(String deviceToken) async {
     Either result = await sl<AuthApiService>().registerDeviceToken(deviceToken);
     return result.fold((error) {
       return Left(error);
     }, (data) {
-      Response response = data;
-      return Right(response);
+      // Just return success as true instead of the response object
+      return Right(true);
     });
   }
 
@@ -156,7 +156,20 @@ class AuthRepositoryImpl extends AuthRepository {
               'fullName', response.data['data']['fullName']);
           sharedPreferences.setString('email', response.data['data']['email']);
 
-          return Right(true);
+          // Get and register device token
+          String token = await getDeviceToken();
+          print("Token: $token");
+          if (token == "empty token") {
+            return Left("Không thể lấy device token");
+          }
+
+          // Return the result of registering device token
+          return await registerDeviceToken(token).then((deviceTokenResult) {
+            return deviceTokenResult.fold(
+                (error) => Left("Không thể đăng ký device token"),
+                (success) =>
+                    Right(true)); // Return true instead of response object
+          });
         } else {
           return Left(
               "Đăng nhập thất bại: Bạn không có quyền truy cập với role này.");
