@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_project/domain/repository/sheet.dart'; // Import for SheetRepository
 import 'package:my_project/presentation/main/main_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_project/core/constants/app_colors.dart';
@@ -28,6 +29,68 @@ class _UserProfileState extends State<UserProfile> {
       fullName = prefs.getString('fullName') ?? 'Người dùng';
       email = prefs.getString('email') ?? 'Chưa có email';
     });
+  }
+
+  // Method to show the dialog for adding Google Sheet ID
+  Future<void> _showAddSheetDialog() async {
+    final sheetIdController = TextEditingController();
+    bool isLoading = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Google Sheet ID'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: sheetIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Sheet ID',
+                  hintText: 'Enter your Google Sheet ID',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (isLoading) const CircularProgressIndicator(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      setState(() => isLoading = true);
+                      try {
+                        final result = await sl<SheetRepository>().addSheetId(
+                          sheetIdController.text,
+                          'userId', // Replace with actual user ID
+                        );
+
+                        result.fold(
+                          (error) => ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error)),
+                          ),
+                          (success) {
+                            Navigator.pop(context);
+                          },
+                        );
+                      } finally {
+                        if (mounted) {
+                          setState(() => isLoading = false);
+                        }
+                      }
+                    },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -118,6 +181,7 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  // Method to build the menu section
   Widget _buildMenuSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -151,6 +215,11 @@ class _UserProfileState extends State<UserProfile> {
             title: 'Security',
             onTap: () {},
           ),
+          _buildMenuItem(
+            icon: Icons.add,
+            title: 'Add Google Sheet',
+            onTap: _showAddSheetDialog, // Menu item to add Google Sheet
+          ),
           const Divider(height: 24, color: Colors.grey),
           _buildMenuItem(
             icon: Icons.logout_rounded,
@@ -163,6 +232,7 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  // Method to build each menu item
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
@@ -209,6 +279,7 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  // Method to handle logout
   Future<void> _handleLogout() async {
     showDialog(
       context: context,
@@ -224,9 +295,9 @@ class _UserProfileState extends State<UserProfile> {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context); // Đóng dialog
+              Navigator.pop(context); // Close dialog
 
-              // Hiển thị loading
+              // Show loading
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -235,11 +306,11 @@ class _UserProfileState extends State<UserProfile> {
                 ),
               );
 
-              // Thực hiện đăng xuất
+              // Perform logout
               final result = await sl<AuthRepository>().logout();
 
               if (mounted) {
-                Navigator.pop(context); // Đóng loading
+                Navigator.pop(context); // Close loading
 
                 result.fold(
                   (error) {
