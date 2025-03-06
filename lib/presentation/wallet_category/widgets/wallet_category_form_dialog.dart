@@ -1,8 +1,6 @@
-import 'dart:io';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:my_project/core/services/storage_service.dart';
+import 'package:my_project/core/constants/app_icons.dart';
 import 'package:my_project/core/utils/hex_color.dart';
 import 'package:my_project/data/models/wallet_category.dart';
 import 'package:my_project/data/models/wallet_type.dart';
@@ -32,11 +30,10 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
   final _descriptionController = TextEditingController();
   final _iconPathController = TextEditingController();
   final _colorController = TextEditingController();
+  String? _selectedIconId;
   String? _selectedWalletTypeId;
   List<WalletType> _walletTypes = [];
   bool _isLoading = false;
-  File? _selectedImage;
-  final StorageService _storageService = StorageService();
 
   @override
   void initState() {
@@ -47,6 +44,23 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
       _iconPathController.text = widget.category!.iconPath ?? '';
       _colorController.text = widget.category!.color ?? '';
       _selectedWalletTypeId = widget.category!.walletTypeId;
+
+      // Tìm ID dựa trên iconPath (URL) hiện có
+      if (widget.category!.iconPath != null) {
+        // Nếu iconPath là đường dẫn URL
+        if (widget.category!.iconPath!.startsWith('http')) {
+          // Tìm icon ID phù hợp với URL
+          _selectedIconId = AppIcons.walletCategoryIcons
+              .firstWhere(
+                (icon) => icon.link == widget.category!.iconPath,
+                orElse: () => AppIcons.walletCategoryIcons.first,
+              )
+              .id;
+        } else {
+          // Nếu iconPath đã là ID
+          _selectedIconId = widget.category!.iconPath;
+        }
+      }
     }
     _loadWalletTypes();
   }
@@ -58,24 +72,6 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
           .showSnackBar(SnackBar(content: Text(error))),
       (types) => setState(() => _walletTypes = types),
     );
-  }
-
-  Future<void> _pickImage() async {
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-          // Just store the file reference, don't upload yet
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error selecting image: $e')),
-      );
-    }
   }
 
   @override
@@ -129,27 +125,49 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
                       : null,
                 ),
                 const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    width: double.infinity,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[400]!),
-                    ),
-                    child: _selectedImage != null
-                        ? Image.file(_selectedImage!, fit: BoxFit.cover)
-                        : _iconPathController.text.isNotEmpty &&
-                                _iconPathController.text.startsWith('http')
-                            ? Image.network(_iconPathController.text,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                return _buildImagePlaceholder();
-                              })
-                            : _buildImagePlaceholder(),
+                DropdownButtonFormField<String>(
+                  value:
+                      _selectedIconId, // Use the selected icon ID as the value
+                  decoration: InputDecoration(
+                    labelText: 'Icon',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    prefixIcon: _selectedIconId != null
+                        ? Icon(AppIcons.getIconById(_selectedIconId!))
+                        : const Icon(Icons.image),
                   ),
+                  items: AppIcons.walletCategoryIcons
+                      .map((appIcon) => DropdownMenuItem<String>(
+                            value: appIcon.id,
+                            child: Row(
+                              children: [
+                                // Nếu có link và link không rỗng
+                                appIcon.link != null && appIcon.link!.isNotEmpty
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: CachedNetworkImage(
+                                          imageUrl: appIcon.link!,
+                                          width: 24,
+                                          height: 24,
+                                          fit: BoxFit.cover,
+                                          errorWidget: (ctx, url, err) =>
+                                              Icon(appIcon.icon),
+                                        ),
+                                      )
+                                    : Icon(appIcon.icon),
+                                const SizedBox(width: 10),
+                                Text(appIcon.name),
+                              ],
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedIconId = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Please select an icon' : null,
                 ),
                 const SizedBox(height: 16),
                 GestureDetector(
@@ -231,17 +249,6 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
     );
   }
 
-  Widget _buildImagePlaceholder() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Icon(Icons.add_photo_alternate, size: 50, color: Colors.grey),
-        SizedBox(height: 8),
-        Text('Chọn hình ảnh', style: TextStyle(color: Colors.grey)),
-      ],
-    );
-  }
-
   Widget _buildColorPreview() {
     Color? color;
     try {
@@ -265,24 +272,16 @@ class _WalletCategoryFormDialogState extends State<WalletCategoryFormDialog> {
 
     setState(() => _isLoading = true);
 
-    String? iconPath = _iconPathController.text.isNotEmpty
-        ? _iconPathController.text
-        : widget.category?.iconPath;
+    // Lấy URL của icon dựa trên ID đã chọn
+    String? iconPath;
+    if (_selectedIconId != null) {
+      // Lấy link từ ID được chọn
+      iconPath = AppIcons.getLinkById(_selectedIconId!);
+    }
 
-    // Upload ảnh nếu đã chọn
-    if (_selectedImage != null) {
-      try {
-        iconPath = await _storageService.uploadFile(
-            _selectedImage!, 'wallet_category_icons');
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload image: $e')),
-        );
-        return;
-      }
+    // Nếu không có link từ ID, giữ lại iconPath cũ (nếu có)
+    if (iconPath == null || iconPath.isEmpty) {
+      iconPath = widget.category?.iconPath;
     }
 
     final walletCategory = WalletCategory(
