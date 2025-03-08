@@ -92,7 +92,7 @@ class _WalletListViewState extends State<WalletListView> {
             wallets.removeWhere((wallet) => wallet.id == id);
             isLoading = false;
           });
-          _showSnackbar("Xóa ví thành công!");
+          _showSnackbar("Wallet deleted successfully!");
         },
       );
     } catch (e) {
