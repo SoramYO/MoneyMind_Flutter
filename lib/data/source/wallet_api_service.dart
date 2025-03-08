@@ -75,10 +75,9 @@ class WalletApiServiceImpl implements WalletApiService {
         data: walletData,
       );
 
-      if (response.statusCode == 201 && response.data != null) {
+      if (response.statusCode == 200) {
         return Right(Wallet.fromJson(response.data['data']));
       }
-
       return Left(response.data?['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối';
