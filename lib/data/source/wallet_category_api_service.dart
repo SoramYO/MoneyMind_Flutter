@@ -111,7 +111,7 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
       WalletCategory walletCategory) async {
     try {
       final url = "${ApiUrls.walletCategory}/${walletCategory.id}";
-      
+
       // Only send fields that can be updated according to backend
       final updateData = {
         'name': walletCategory.name,
@@ -125,13 +125,13 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
       print('Update Data: $updateData');
 
       final response = await sl<DioClient>().put(url, data: updateData);
-      
+
       if (response.statusCode == 200) {
         final data = response.data['data'];
         final updatedCategory = WalletCategory.fromJson(data);
         return Right(updatedCategory);
       }
-      
+
       print('Update Error: ${response.data}');
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
@@ -139,12 +139,12 @@ class WalletCategoryApiServiceImpl implements WalletCategoryApiService {
       return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
     }
   }
-  
+
   @override
-  Future<Either<String, List<WalletCategory>>> getWalletCategoryByOnlyUserId(String userId) async {
+  Future<Either<String, List<WalletCategory>>> getWalletCategoryByOnlyUserId(
+      String userId) async {
     try {
       final url = '${ApiUrls.walletCategory}/$userId?';
-          
 
       final response = await sl<DioClient>().get(url);
 

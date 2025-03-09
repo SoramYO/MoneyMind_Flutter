@@ -97,6 +97,14 @@ class _StatisticState extends State<Statistic> {
     }
   }
 
+  Widget _buildLoading() {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: AppColors.primary,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,32 +121,34 @@ class _StatisticState extends State<Statistic> {
         ),
         body: RefreshIndicator(
           onRefresh: _loadDatas,
-          child: Column(
-            children: [
-              // Biểu đồ cột hoặc nến
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  'Transaction Overview',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+          child: isLoading
+              ? _buildLoading()
+              : Column(
+                  children: [
+                    // Biểu đồ cột hoặc nến
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'Transaction Overview',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 300,
+                      child: BarChartTransaction(
+                        groupedAmountTransactions: groupedAmountTransactions,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    // Biểu đồ tròn
+                    SizedBox(
+                      height: 200,
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(
-                height: 300,
-                child: BarChartTransaction(
-                  groupedAmountTransactions: groupedAmountTransactions,
-                ),
-              ),
-              SizedBox(height: 20),
-              // Biểu đồ tròn
-              SizedBox(
-                height: 200,
-              ),
-            ],
-          ),
         ));
   }
 }
