@@ -21,11 +21,12 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
+final GlobalKey<NavigatorState> navigationKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator();
   // await dotenv.load(fileName: ".env");
-    await Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initFirebaseMessaging();
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<AuthStateCubit, AuthState>(
         builder: (context, state) {
           return MaterialApp(
+            navigatorKey: navigationKey,
             title: 'Money Mind',
             theme: AppTheme.appTheme,
             debugShowCheckedModeBanner: false,

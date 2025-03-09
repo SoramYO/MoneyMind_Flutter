@@ -83,7 +83,13 @@ class AuthRepositoryImpl extends AuthRepository {
       if (roles.contains('User')) {
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
+        final expiredTimeRefreshToken =
+            DateTime.now().add(Duration(days: 3)).millisecondsSinceEpoch ~/
+                1000;
 
+        // final expiredTimeRefreshToken =
+        //     DateTime.now().add(Duration(seconds: 20)).millisecondsSinceEpoch ~/
+        //         1000;
         // Lưu userId vào SharedPreferences
         sharedPreferences.setString('userId', response.data['data']['userId']);
 
@@ -92,6 +98,8 @@ class AuthRepositoryImpl extends AuthRepository {
             'accessToken', response.data['data']['tokens']['accessToken']);
         sharedPreferences.setString(
             'refreshToken', response.data['data']['tokens']['refreshToken']);
+        sharedPreferences.setString(
+            'expRefreshToken', expiredTimeRefreshToken.toString());
         // Lưu user tạm vào SharedPreferences
         sharedPreferences.setString(
             'fullName', response.data['data']['fullName']);

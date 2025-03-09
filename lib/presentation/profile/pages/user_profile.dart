@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_project/domain/repository/sheet.dart'; // Import for SheetRepository
+import 'package:my_project/main.dart';
 import 'package:my_project/presentation/main/main_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_project/core/constants/app_colors.dart';
@@ -322,10 +323,8 @@ class _UserProfileState extends State<UserProfile> {
                     );
                   },
                   (success) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/signin',
-                      (route) => false,
-                    );
+                    navigationKey.currentState
+                        ?.pushNamedAndRemoveUntil('/signin', (route) => false);
                   },
                 );
               }

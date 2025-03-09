@@ -9,7 +9,6 @@ import 'package:my_project/data/models/signup_req_params.dart';
 import 'package:my_project/domain/usecases/signup.dart';
 import 'package:my_project/service_locator.dart';
 
-
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
   @override
@@ -36,7 +35,8 @@ class _SignupPageState extends State<SignupPage> {
               // Hiển thị thông báo đăng ký thành công
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Đăng ký thành công! Vui lòng đăng nhập'),
+                  content: Text(
+                      'Đăng ký thành công! Vui lòng xác minh email và đăng nhập'),
                   duration: Duration(seconds: 2),
                 ),
               );

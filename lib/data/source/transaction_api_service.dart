@@ -12,8 +12,8 @@ abstract class TransactionApiService {
   });
   Future<Either<String, Transaction>> createTransaction(
       TransactionRequest transaction);
-  Future<Either<String, Transaction>> updateTransaction(String transactionId,
-      TransactionRequest transaction);
+  Future<Either<String, Transaction>> updateTransaction(
+      String transactionId, TransactionRequest transaction);
   Future<Either<String, bool>> deleteTransaction(String id);
   Future<Either<String, Transaction>> getTransactionById(String id);
 }
@@ -62,8 +62,8 @@ class TransactionApiServiceIml implements TransactionApiService {
   }
 
   @override
-  Future<Either<String, Transaction>> updateTransaction(String transactionId,
-      TransactionRequest transaction) async {
+  Future<Either<String, Transaction>> updateTransaction(
+      String transactionId, TransactionRequest transaction) async {
     try {
       final response = await sl<DioClient>().put(
         '${ApiUrls.transactions}/${transactionId.trim()}',

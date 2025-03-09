@@ -137,8 +137,8 @@ class AuthApiServiceImpl extends AuthApiService {
   @override
   Future<Either> googleSignIn(String token) async {
     try {
-      var response = await sl<DioClient>().post(ApiUrls.googleSignIn,
-          data: {'token': token});
+      var response = await sl<DioClient>()
+          .post(ApiUrls.googleSignIn, data: {'token': token});
 
       if (response.statusCode == 200) {
         return Right(response);

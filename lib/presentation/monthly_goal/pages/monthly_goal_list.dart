@@ -247,6 +247,14 @@ class _MonthlyGoalListViewState extends State<MonthlyGoalListView> {
     _showEditGoalItemDialog(goalItem);
   }
 
+  Widget _buildLoading() {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: AppColors.primary,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,166 +324,41 @@ class _MonthlyGoalListViewState extends State<MonthlyGoalListView> {
                 },
               ),
             ),
-
-            Expanded(
-                child: SingleChildScrollView(
-                    physics:
-                        AlwaysScrollableScrollPhysics(), // Để RefreshIndicator hoạt động
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: monthlyGoals.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No Data',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey),
-                              ),
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ...monthlyGoals.map(
-                                  (monthlyGoal) => Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+            isLoading
+                ? _buildLoading()
+                : Expanded(
+                    child: SingleChildScrollView(
+                        physics:
+                            AlwaysScrollableScrollPhysics(), // Để RefreshIndicator hoạt động
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: monthlyGoals.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'No Data',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ...monthlyGoals.map(
+                                      (monthlyGoal) => Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 8),
-                                            child: Dismissible(
-                                              key: Key(monthlyGoal.id),
-                                              direction:
-                                                  DismissDirection.endToStart,
-                                              background: Container(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                padding:
-                                                    const EdgeInsets.all(1.0),
-                                                color: Colors.blue,
-                                                child: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              confirmDismiss:
-                                                  (direction) async {
-                                                _navigateToUpdateMonthlyGoalPage(
-                                                    monthlyGoal);
-                                                return false; // Không xóa card sau khi vuốt
-                                              },
-                                              child: Container(
-                                                width: 350,
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 8),
-                                                padding:
-                                                    const EdgeInsets.all(12),
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    // colors: monthlyGoal.isCompleted
-                                                    //     ? [Colors.indigo, Colors.blue]
-                                                    //     : [Colors.deepOrange, Colors.red],
-                                                    colors: [
-                                                      AppColors.brown,
-                                                      AppColors.gold
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black12,
-                                                      blurRadius: 4,
-                                                      offset: Offset(0, 2),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '${monthlyGoal.month}/${monthlyGoal.year}',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width:
-                                                                5), // Thêm khoảng cách giữa text và icon
-                                                        Icon(
-                                                          monthlyGoal
-                                                                  .isCompleted
-                                                              ? Icons
-                                                                  .check_circle
-                                                              : Icons.cancel,
-                                                          color: monthlyGoal
-                                                                  .isCompleted
-                                                              ? Colors.green
-                                                              : Colors.red,
-                                                          size: 18,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      'Status: ${monthlyGoal.status == 1 ? 'In Progress' : 'Completed'}',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'Total Amount: ${NumberFormat('#,###').format(monthlyGoal.totalAmount)} VND',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'Created At: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(monthlyGoal.createAt)}',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                      // Danh sách Goal Items
-                                      Column(
-                                        children: monthlyGoal.goalItems!
-                                            .map(
-                                              (goalItem) => Padding(
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Padding(
                                                 padding: const EdgeInsets.only(
                                                     bottom: 8),
                                                 child: Dismissible(
-                                                  key: Key(goalItem.id),
+                                                  key: Key(monthlyGoal.id),
                                                   direction: DismissDirection
                                                       .endToStart,
                                                   background: Container(
@@ -492,25 +375,164 @@ class _MonthlyGoalListViewState extends State<MonthlyGoalListView> {
                                                   ),
                                                   confirmDismiss:
                                                       (direction) async {
-                                                    _navigateToUpdateGoalItemPage(
-                                                        goalItem);
+                                                    _navigateToUpdateMonthlyGoalPage(
+                                                        monthlyGoal);
                                                     return false; // Không xóa card sau khi vuốt
                                                   },
-                                                  child: GoalItemCard(
-                                                    goalItem: goalItem,
+                                                  child: Container(
+                                                    width: 350,
+                                                    margin: const EdgeInsets
+                                                        .symmetric(vertical: 8),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            12),
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        // colors: monthlyGoal.isCompleted
+                                                        //     ? [Colors.indigo, Colors.blue]
+                                                        //     : [Colors.deepOrange, Colors.red],
+                                                        colors: [
+                                                          AppColors.brown,
+                                                          AppColors.gold
+                                                        ],
+                                                        begin:
+                                                            Alignment.topLeft,
+                                                        end: Alignment
+                                                            .bottomRight,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black12,
+                                                          blurRadius: 4,
+                                                          offset: Offset(0, 2),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              '${monthlyGoal.month}/${monthlyGoal.year}',
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                width:
+                                                                    5), // Thêm khoảng cách giữa text và icon
+                                                            Icon(
+                                                              monthlyGoal.isCompleted
+                                                                  ? Icons
+                                                                      .check_circle
+                                                                  : Icons
+                                                                      .cancel,
+                                                              color: monthlyGoal
+                                                                      .isCompleted
+                                                                  ? Colors.green
+                                                                  : Colors.red,
+                                                              size: 18,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        Text(
+                                                          'Status: ${monthlyGoal.status == 1 ? 'In Progress' : 'Completed'}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          'Total Amount: ${NumberFormat('#,###').format(monthlyGoal.totalAmount)} VND',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          'Created At: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(monthlyGoal.createAt)}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            )
-                                            .toList(),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          // Danh sách Goal Items
+                                          Column(
+                                            children: monthlyGoal.goalItems!
+                                                .map(
+                                                  (goalItem) => Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 8),
+                                                    child: Dismissible(
+                                                      key: Key(goalItem.id),
+                                                      direction:
+                                                          DismissDirection
+                                                              .endToStart,
+                                                      background: Container(
+                                                        alignment: Alignment
+                                                            .centerRight,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(1.0),
+                                                        color: Colors.blue,
+                                                        child: const Icon(
+                                                          Icons.edit,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      confirmDismiss:
+                                                          (direction) async {
+                                                        _navigateToUpdateGoalItemPage(
+                                                            goalItem);
+                                                        return false; // Không xóa card sau khi vuốt
+                                                      },
+                                                      child: GoalItemCard(
+                                                        goalItem: goalItem,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                                .toList(),
+                                          ),
+                                          const SizedBox(height: 16),
+                                        ],
                                       ),
-                                      const SizedBox(height: 16),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                    )))
+                        )))
           ])),
     );
   }

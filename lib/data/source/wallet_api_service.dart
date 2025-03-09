@@ -68,7 +68,8 @@ class WalletApiServiceImpl implements WalletApiService {
   }
 
   @override
-  Future<Either<String, Wallet>> createWallet(Map<String, dynamic> walletData) async {
+  Future<Either<String, Wallet>> createWallet(
+      Map<String, dynamic> walletData) async {
     try {
       final response = await sl<DioClient>().post(
         ApiUrls.wallet,
@@ -80,7 +81,8 @@ class WalletApiServiceImpl implements WalletApiService {
       }
       return Left(response.data?['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối';
+      final errorMessage =
+          e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối';
       print('Lỗi khi tạo Wallet: $errorMessage'); // Logging lỗi
       return Left(errorMessage);
     } catch (e) {
@@ -90,11 +92,12 @@ class WalletApiServiceImpl implements WalletApiService {
   }
 
   @override
-  Future<Either<String, Wallet>> updateWallet(String id, WalletUpdate wallet) async {
+  Future<Either<String, Wallet>> updateWallet(
+      String id, WalletUpdate wallet) async {
     try {
       final response = await sl<DioClient>().put(
         '${ApiUrls.wallet}/${id.trim()}',
-          data: wallet.toJson(),
+        data: wallet.toJson(),
       );
 
       print('Response: ${response.data['data']}');
@@ -111,7 +114,8 @@ class WalletApiServiceImpl implements WalletApiService {
   @override
   Future<Either<String, bool>> deleteWallet(String id) async {
     try {
-      final response = await sl<DioClient>().put('${ApiUrls.wallet}/$id/delete');
+      final response =
+          await sl<DioClient>().put('${ApiUrls.wallet}/$id/delete');
 
       if (response.statusCode == 200) {
         return Right(true);
@@ -120,7 +124,7 @@ class WalletApiServiceImpl implements WalletApiService {
       return Left(response.data['message'] ?? 'Lỗi không xác định');
     } on DioException catch (e) {
       // return Left(e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối');
-      return Left( 'Lỗi kết nối');
+      return Left('Lỗi kết nối');
     }
   }
 
@@ -166,7 +170,7 @@ class WalletApiServiceImpl implements WalletApiService {
     }
   }
 
- @override
+  @override
   Future<Either<String, WalletClone>> getWalletById(String id) async {
     try {
       final url = '${ApiUrls.wallet}/detail/$id';
