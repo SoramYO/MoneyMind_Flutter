@@ -470,16 +470,16 @@ class _HomePageState extends State<HomePage> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Daily budget - (${NumberFormat('#,###').format(totalAmount / 30)}đ)',
+                                      'Daily budget: ${NumberFormat('#,###').format(totalAmount / 30)}đ',
                                       style: TextStyle(
                                         color: AppColors.textLight,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    const SizedBox(width: 40),
+                                    const SizedBox(width: 0),
                                     Text(
-                                      '$daysLeftOfMonth days left',
+                                      ' / $daysLeftOfMonth days left',
                                       style: TextStyle(
                                         color: AppColors.textLight,
                                         fontSize: 16,

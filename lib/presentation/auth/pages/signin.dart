@@ -51,7 +51,7 @@ class _SigninPageState extends State<SigninPage> {
             }
           },
           child: SafeArea(
-            minimum: const EdgeInsets.only(top: 100, right: 16, left: 16),
+            minimum: const EdgeInsets.only(top: 40, right: 16, left: 16),
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Padding(
@@ -63,7 +63,7 @@ class _SigninPageState extends State<SigninPage> {
                     children: [
                       Image.asset('assets/images/logo.png',
                           height: 120, width: 120),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 0),
                       Text('MoneyMind',
                           style: TextStyle(
                             fontSize: 32,
