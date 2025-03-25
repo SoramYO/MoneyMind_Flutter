@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_project/domain/repository/sheet.dart'; // Import for SheetRepository
+import 'package:my_project/domain/repository/sheet.dart';
 import 'package:my_project/main.dart';
 import 'package:my_project/presentation/main/main_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +17,8 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   String fullName = '';
   String email = '';
+  String userId = '';
+  bool hasSheet = false;
 
   @override
   void initState() {
@@ -26,13 +28,24 @@ class _UserProfileState extends State<UserProfile> {
 
   Future<void> _loadUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
+    final loadedUserId = prefs.getString('userId') ?? '';
     setState(() {
       fullName = prefs.getString('fullName') ?? 'Người dùng';
       email = prefs.getString('email') ?? 'Chưa có email';
+      userId = loadedUserId;
     });
+    if (loadedUserId.isNotEmpty) {
+      await _checkSheetStatus();
+    }
   }
 
-  // Method to show the dialog for adding Google Sheet ID
+  Future<void> _checkSheetStatus() async {
+    final exists = await sl<SheetRepository>().checkSheetExists(userId);
+    if (mounted) {
+      setState(() => hasSheet = exists);
+    }
+  }
+
   Future<void> _showAddSheetDialog() async {
     final sheetIdController = TextEditingController();
     bool isLoading = false;
@@ -69,15 +82,19 @@ class _UserProfileState extends State<UserProfile> {
                       try {
                         final result = await sl<SheetRepository>().addSheetId(
                           sheetIdController.text,
-                          'userId', // Replace with actual user ID
+                          userId, // Use actual userId
                         );
-
                         result.fold(
                           (error) => ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(error)),
                           ),
                           (success) {
+                            setState(() => hasSheet = true);
                             Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Sheet ID added successfully')),
+                            );
                           },
                         );
                       } finally {
@@ -92,6 +109,53 @@ class _UserProfileState extends State<UserProfile> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleSync() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sync transactions?'),
+        content: const Text('Do you want to sync transactions with Google Sheet now?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Later'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sync'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+      try {
+        final result = await sl<SheetRepository>().syncSheet(userId);
+        Navigator.pop(context); // Close loading dialog
+        result.fold(
+          (error) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          ),
+          (success) => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sync successful')),
+          ),
+        );
+      } catch (e) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -182,7 +246,6 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  // Method to build the menu section
   Widget _buildMenuSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -217,9 +280,9 @@ class _UserProfileState extends State<UserProfile> {
             onTap: () {},
           ),
           _buildMenuItem(
-            icon: Icons.add,
-            title: 'Add Google Sheet',
-            onTap: _showAddSheetDialog, // Menu item to add Google Sheet
+            icon: hasSheet ? Icons.sync : Icons.add,
+            title: hasSheet ? 'Sync Now' : 'Add Google Sheet',
+            onTap: hasSheet ? _handleSync : _showAddSheetDialog,
           ),
           const Divider(height: 24, color: Colors.grey),
           _buildMenuItem(
@@ -233,7 +296,6 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  // Method to build each menu item
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
@@ -280,7 +342,6 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  // Method to handle logout
   Future<void> _handleLogout() async {
     showDialog(
       context: context,
@@ -297,8 +358,6 @@ class _UserProfileState extends State<UserProfile> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context); // Close dialog
-
-              // Show loading
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -306,26 +365,18 @@ class _UserProfileState extends State<UserProfile> {
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               );
-
-              // Perform logout
               final result = await sl<AuthRepository>().logout();
-
               if (mounted) {
                 Navigator.pop(context); // Close loading
-
                 result.fold(
-                  (error) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(error.toString()),
-                        backgroundColor: AppColors.error,
-                      ),
-                    );
-                  },
-                  (success) {
-                    navigationKey.currentState
-                        ?.pushNamedAndRemoveUntil('/signin', (route) => false);
-                  },
+                  (error) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(error.toString()),
+                      backgroundColor: AppColors.error,
+                    ),
+                  ),
+                  (success) => navigationKey.currentState
+                      ?.pushNamedAndRemoveUntil('/signin', (route) => false),
                 );
               }
             },
