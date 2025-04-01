@@ -11,6 +11,8 @@ MoneyMind là một ứng dụng di động giúp người dùng theo dõi và q
 - Báo cáo thống kê chi tiết
 - Đặt mục tiêu tài chính
 - Nhắc nhở thanh toán
+- ![diagram](https://github.com/user-attachments/assets/54abe791-6384-4a45-8e86-f1969fed8b23)
+
 
 ## 🚀 Cài đặt
 
